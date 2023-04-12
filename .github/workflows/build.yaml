@@ -68,5 +68,4 @@ jobs:
       - name: GitHub release
         uses: softprops/action-gh-release@v1
         with:
-          token: ${{secrets.DEVOPS_TOKEN}}
           tag_name: v${{needs.versioning.outputs.version}}
