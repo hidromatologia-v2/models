@@ -1,3 +1,3 @@
-module github.com/shoriwe/base-go-repo
+module github.com/hidromatologia-v2/models
 
 go 1.20
