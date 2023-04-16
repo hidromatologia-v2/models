@@ -20,11 +20,11 @@ type (
 		User            User                      `json:"user" gorm:"foreignKey:UserUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 		UserUUID        uuid.UUID                 `json:"userUUID" gorm:"uniqueIndex:idx_unique_station;not null;"`
 		Name            string                    `json:"name" gorm:"uniqueIndex:idx_unique_station;not null;"`
+		Description     string                    `json:"description"`
 		CountryName     string                    `json:"countryName" gorm:"-"`
 		SubdivisionName string                    `json:"subdivisionName" gorm:"-"`
 		Country         countries.CountryCode     `json:"-" gorm:"not null;"`
 		Subdivision     countries.SubdivisionCode `json:"-" gorm:"not null"`
-		Description     string                    `json:"description"`
 		Latitude        float64                   `json:"latitude" gorm:"not null;"`
 		Longitude       float64                   `json:"longitude" gorm:"not null;"`
 		APIKey          string                    `json:"apiKey" gorm:"not null;"`
