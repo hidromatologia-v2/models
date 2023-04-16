@@ -36,8 +36,8 @@ jobs:
         run: |
           git checkout main
           git fetch --all --tags
-          git config --global user.email "yourmail@mail.com"
-          git config --global user.name "Your Name"
+          git config --global user.email "antoniojosedonishung@mail.com"
+          git config --global user.name "Antonio Donis"
       
       - name: Setup node 18.x
         uses: actions/setup-node@v3
