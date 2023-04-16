@@ -72,6 +72,27 @@ func testStation(t *testing.T, db *gorm.DB) {
 		s.SubdivisionName = s.CountryName
 		assert.Nil(tt, db.Create(s).Error)
 	})
+	t.Run("Registries", func(tt *testing.T) {
+		u := RandomUser()
+		assert.Nil(tt, db.Create(u).Error)
+		s := RandomStation(u)
+		assert.Nil(tt, db.Create(s).Error)
+		var r []SensorRegistry
+		for i := 0; i < 5; i++ {
+			r = append(r, SensorRegistry{
+				SensorUUID: s.Sensors[0].UUID,
+				Value:      float64(i),
+			})
+		}
+		assert.Nil(tt, db.Create(r).Error)
+		var registries []SensorRegistry
+		assert.Nil(tt, db.Where("sensor_uuid = ?", s.Sensors[0].UUID).Find(&registries).Error)
+		assert.Len(tt, registries, len(r))
+		for index, registry := range r {
+			assert.Equal(tt, registry.SensorUUID, registries[index].SensorUUID)
+			assert.Equal(tt, registry.Value, registries[index].Value)
+		}
+	})
 }
 
 func TestStation(t *testing.T) {
@@ -79,14 +100,14 @@ func TestStation(t *testing.T) {
 		db := sqlite.NewMem()
 		conn, _ := db.DB()
 		defer conn.Close()
-		assert.Nil(tt, db.AutoMigrate(&User{}, &Station{}, &Sensor{}))
+		assert.Nil(tt, db.AutoMigrate(&User{}, &Station{}, &Sensor{}, &SensorRegistry{}))
 		testStation(tt, db)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		db := postgres.NewDefault()
 		conn, _ := db.DB()
 		defer conn.Close()
-		assert.Nil(tt, db.AutoMigrate(&User{}, &Station{}, &Sensor{}))
+		assert.Nil(tt, db.AutoMigrate(&User{}, &Station{}, &Sensor{}, &SensorRegistry{}))
 		testStation(tt, db)
 	})
 }

@@ -30,9 +30,16 @@ type (
 	}
 	Sensor struct {
 		Model
-		Station     Station   `json:"station" gorm:"foreignKey:StationUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-		StationUUID uuid.UUID `json:"stationUUID" gorm:"uniqueIndex:idx_unique_sensor;not null;"`
-		Type        string    `json:"type" gorm:"uniqueIndex:idx_unique_sensor;not null;"`
+		Station     Station          `json:"station" gorm:"foreignKey:StationUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+		StationUUID uuid.UUID        `json:"stationUUID" gorm:"uniqueIndex:idx_unique_sensor;not null;"`
+		Type        string           `json:"type" gorm:"uniqueIndex:idx_unique_sensor;not null;"`
+		Registries  []SensorRegistry `json:"registries"`
+	}
+	SensorRegistry struct {
+		Model
+		Sensor     Sensor    `json:"sensor" gorm:"foreignKey:SensorUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+		SensorUUID uuid.UUID `json:"sensorUUID" gorm:"not null;"`
+		Value      float64   `json:"value"`
 	}
 )
 
