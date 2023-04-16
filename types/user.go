@@ -34,7 +34,7 @@ type User struct {
 
 func RandomUser() *User {
 	number, _ := rand.Int(rand.Reader, big.NewInt(100))
-	person := gofakeit.Person()
+	person := gofakeit.NewCrypto().Person()
 	return &User{
 		Username: fmt.Sprintf("%s%d", person.FirstName, number),
 		Email:    person.Contact.Email,
