@@ -1,8 +1,11 @@
 name: Coverage
 
 on:
-  release:
-    types: ["published", "unpublished", "prereleased"]
+  workflow_run:
+    workflows:
+      - Build
+    types:
+      - completed
 
 permissions: read-all
 
