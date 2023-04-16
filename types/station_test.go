@@ -42,9 +42,9 @@ func testStation(t *testing.T, db *gorm.DB) {
 		}
 		// Check preloading
 		var station Station
-		assert.Nil(tt, db.Preload("Sensors", "station_uuid = ?", s.UUID).Where("uuid = ?", s.UUID).First(&station).Error)
+		assert.Nil(tt, db.Preload("Sensors").Where("uuid = ?", s.UUID).First(&station).Error)
 		assert.Equal(tt, s.UUID, station.UUID)
-		assert.Equal(tt, s.ResponsibleUUID, station.ResponsibleUUID)
+		assert.Equal(tt, s.UserUUID, station.UserUUID)
 		assert.Len(tt, station.Sensors, len(s.Sensors))
 		for index, sensor := range s.Sensors {
 			assert.Equal(tt, sensor.UUID, station.Sensors[index].UUID)

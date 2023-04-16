@@ -16,8 +16,8 @@ import (
 type (
 	Station struct {
 		Model
-		Responsible     User                      `json:"responsible" gorm:"foreignKey:ResponsibleUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-		ResponsibleUUID uuid.UUID                 `json:"responsibleUUID" gorm:"uniqueIndex:idx_unique_station;not null;"`
+		User            User                      `json:"user" gorm:"foreignKey:UserUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+		UserUUID        uuid.UUID                 `json:"userUUID" gorm:"uniqueIndex:idx_unique_station;not null;"`
 		Name            string                    `json:"name" gorm:"uniqueIndex:idx_unique_station;not null;"`
 		CountryName     string                    `json:"countryName" gorm:"-"`
 		SubdivisionName string                    `json:"subdivisionName" gorm:"-"`
@@ -97,7 +97,7 @@ func RandomStation(user *User) *Station {
 	latitude, _ := rand.Int(rand.Reader, big.NewInt(int64(1000)))
 	longitude, _ := rand.Int(rand.Reader, big.NewInt(int64(1000)))
 	station := &Station{
-		ResponsibleUUID: user.UUID,
+		UserUUID:        user.UUID,
 		Name:            fmt.Sprintf("%s %s %s %s", gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word()),
 		CountryName:     countries.Colombia.String(),
 		SubdivisionName: countries.Colombia.Subdivisions()[0].String(),

@@ -23,13 +23,14 @@ const (
 
 type User struct {
 	Model
-	Username     string `json:"username" gorm:"unique;not null;"`
-	Password     string `json:"password" gorm:"-"`
-	PasswordHash []byte `json:"-" gorm:"not null;"`
-	Name         string `json:"name" gorm:"not null"`
-	Phone        string `json:"phone" gorm:"unique;not null"`
-	Email        string `json:"email" gorm:"unique;not null"`
-	Confirmed    bool   `json:"confimed" gorm:"not null;default:FALSE;" `
+	Username     string    `json:"username" gorm:"unique;not null;"`
+	Password     string    `json:"password" gorm:"-"`
+	PasswordHash []byte    `json:"-" gorm:"not null;"`
+	Name         string    `json:"name" gorm:"not null"`
+	Phone        string    `json:"phone" gorm:"unique;not null"`
+	Email        string    `json:"email" gorm:"unique;not null"`
+	Confirmed    bool      `json:"confimed" gorm:"not null;default:FALSE;"`
+	Stations     []Station `json:"stations"`
 }
 
 func RandomUser() *User {

@@ -71,6 +71,15 @@ func testUser(t *testing.T, db *gorm.DB) {
 		u.Email = ""
 		assert.NotNil(tt, db.Create(u).Error)
 	})
+	t.Run("Stations", func(tt *testing.T) {
+		u := RandomUser()
+		assert.Nil(tt, db.Create(u).Error)
+		s := RandomStation(u)
+		assert.Nil(tt, db.Create(s).Error)
+		var user User
+		assert.Nil(tt, db.Preload("Stations").Where("uuid = ?", u.UUID).First(&user).Error)
+		assert.Len(tt, user.Stations, 1)
+	})
 }
 
 func TestUser(t *testing.T) {
@@ -78,14 +87,14 @@ func TestUser(t *testing.T) {
 		db := sqlite.NewMem()
 		conn, _ := db.DB()
 		defer conn.Close()
-		assert.Nil(tt, db.AutoMigrate(&User{}))
+		assert.Nil(tt, db.AutoMigrate(&User{}, &Station{}, &Sensor{}, &SensorRegistry{}))
 		testUser(tt, db)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		db := postgres.NewDefault()
 		conn, _ := db.DB()
 		defer conn.Close()
-		assert.Nil(tt, db.AutoMigrate(&User{}))
+		assert.Nil(tt, db.AutoMigrate(&User{}, &Station{}, &Sensor{}, &SensorRegistry{}))
 		testUser(tt, db)
 	})
 }
