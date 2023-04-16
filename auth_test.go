@@ -48,3 +48,23 @@ func TestAuthenticate(t *testing.T) {
 		testAuthenticate(tt, NewController(postgres.NewDefault(), []byte(random.String())))
 	})
 }
+func testRegister(t *testing.T, c *Controller) {
+	t.Run("Succeed", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.Register(u))
+	})
+	t.Run("RepeatedUser", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.Register(u))
+		assert.NotNil(tt, c.Register(u))
+	})
+}
+
+func TestRegister(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testRegister(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testRegister(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+	})
+}

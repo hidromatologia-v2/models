@@ -23,3 +23,7 @@ func (c *Controller) Authenticate(u *tables.User) (*tables.User, error) {
 	}
 	return user, nil
 }
+
+func (c *Controller) Register(u *tables.User) error {
+	return c.DB.Create(u).Error
+}
