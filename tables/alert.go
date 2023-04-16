@@ -43,6 +43,7 @@ type Alert struct {
 	ConditionOP string    `json:"conditionOP" gorm:"-"`
 	Condition   Condition `json:"-" gorm:"not null;"`
 	Value       float64   `json:"value" gorm:"not null;"`
+	Enabled     bool      `json:"enabled" gorm:"not null;default:FALSE"`
 }
 
 func (a *Alert) AfterFind(tx *gorm.DB) error {
