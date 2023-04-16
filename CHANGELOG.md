@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.2 (2023-04-16)
+
+
+### Bug Fixes
+
+* removed yaml from docker compose up command ([2d1cea7](https://github.com/hidromatologia-v2/models/commit/2d1cea7e07c274cd31e42641b5e775d4ebf4463c))
+
 ### 0.0.1 (2023-04-12)
 
 
