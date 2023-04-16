@@ -14,12 +14,18 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: "1.20"
+      
+      - name: Set up docker environment
+        run: docker compose -f testing.docker-compose.yaml up -d
 
       - name: Build
         run: go build -v ./...
 
       - name: Test
         run: go test -v ./...
+      
+      - name: Clean docker environment
+        run: docker compose -f testing.docker-compose.yaml down --rmi all -v --remove-orphans
 
   versioning:
     permissions:
