@@ -9,6 +9,7 @@ import (
 
 	"github.com/biter777/countries"
 	"github.com/brianvoe/gofakeit/v6"
+	"github.com/hidromatologia-v2/models/common/random"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -26,6 +27,7 @@ type (
 		Description     string                    `json:"description"`
 		Latitude        float64                   `json:"latitude" gorm:"not null;"`
 		Longitude       float64                   `json:"longitude" gorm:"not null;"`
+		APIKey          string                    `json:"apiKey" gorm:"not null;"`
 		Sensors         []Sensor                  `json:"sensors"`
 	}
 	Sensor struct {
@@ -62,6 +64,7 @@ func (s *Station) BeforeSave(tx *gorm.DB) error {
 	if bErr != nil {
 		return bErr
 	}
+	s.APIKey = random.String()
 	sort.Slice(s.Sensors, func(i, j int) bool {
 		return strings.Compare(s.Sensors[i].Type, s.Sensors[j].Type) < 0
 	})
