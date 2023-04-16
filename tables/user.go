@@ -1,4 +1,4 @@
-package types
+package tables
 
 import (
 	"crypto/rand"
