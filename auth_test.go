@@ -103,3 +103,29 @@ func TestAuthorize(t *testing.T) {
 		testAuthorize(tt, NewController(postgres.NewDefault(), []byte(random.String())))
 	})
 }
+
+func testAuthorizeAPIKey(t *testing.T, c *Controller) {
+	t.Run("Succeed", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		station, aErr := c.AuthorizeAPIKey(s.APIKey)
+		assert.Nil(tt, aErr)
+		assert.NotNil(tt, station)
+	})
+	t.Run("Fail", func(tt *testing.T) {
+		station, aErr := c.AuthorizeAPIKey("INVALID")
+		assert.NotNil(tt, aErr)
+		assert.Nil(tt, station)
+	})
+}
+
+func TestAuthorizeAPIKey(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testAuthorizeAPIKey(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testAuthorizeAPIKey(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+	})
+}

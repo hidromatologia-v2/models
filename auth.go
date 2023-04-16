@@ -51,3 +51,17 @@ func (c *Controller) Authorize(jwtS string) (*tables.User, error) {
 	}
 	return user, nil
 }
+
+func (c *Controller) AuthorizeAPIKey(apiKey string) (*tables.Station, error) {
+	station := new(tables.Station)
+	err := c.DB.
+		Where("api_key = ?", apiKey).
+		First(station).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUnauthorized
+		}
+		return nil, err
+	}
+	return station, nil
+}
