@@ -27,6 +27,10 @@ jobs:
         run: go test -coverpkg ./... -coverprofile coverage.txt -covermode atomic ./...
       
       - uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.txt
+          fail_ci_if_error: true
 
       - name: Clean docker environment
         run: docker compose down --rmi all -v --remove-orphans
