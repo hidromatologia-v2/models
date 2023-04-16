@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.3 (2023-04-16)
+
+
+### Bug Fixes
+
+* added coverage TOKEN ([033a5bc](https://github.com/hidromatologia-v2/models/commit/033a5bc86018d1c9739b72fac32a3d2ebfa9c41a))
+
 ### 0.0.2 (2023-04-16)
 
 
