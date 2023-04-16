@@ -48,6 +48,7 @@ func TestAuthenticate(t *testing.T) {
 		testAuthenticate(tt, NewController(postgres.NewDefault(), []byte(random.String())))
 	})
 }
+
 func testRegister(t *testing.T, c *Controller) {
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
@@ -66,5 +67,39 @@ func TestRegister(t *testing.T) {
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testRegister(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+	})
+}
+
+func testAuthorize(t *testing.T, c *Controller) {
+	t.Run("Succeed", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.Register(u))
+		authUser, aErr := c.Authenticate(u)
+		assert.Nil(tt, aErr)
+		token := c.JWT.New(authUser.Claims())
+		jwtUser, jwtErr := c.Authorize(token)
+		assert.Nil(tt, jwtErr)
+		assert.NotNil(tt, jwtUser)
+	})
+	t.Run("InvalidUser", func(tt *testing.T) {
+		u := tables.RandomUser()
+		token := c.JWT.New(u.Claims())
+		jwtUser, jwtErr := c.Authorize(token)
+		assert.NotNil(tt, jwtErr)
+		assert.Nil(tt, jwtUser)
+	})
+	t.Run("InvalidToken", func(tt *testing.T) {
+		jwtUser, jwtErr := c.Authorize("")
+		assert.NotNil(tt, jwtErr)
+		assert.Nil(tt, jwtUser)
+	})
+}
+
+func TestAuthorize(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testAuthorize(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testAuthorize(tt, NewController(postgres.NewDefault(), []byte(random.String())))
 	})
 }
