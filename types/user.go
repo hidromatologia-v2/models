@@ -4,6 +4,8 @@ import (
 	"crypto/rand"
 	"fmt"
 	"math/big"
+	"net/mail"
+	"regexp"
 	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -25,8 +27,8 @@ type User struct {
 	Password     string `json:"password" gorm:"-"`
 	PasswordHash []byte `json:"-" gorm:"not null;"`
 	Name         string `json:"name" gorm:"not null"`
-	Phone        string `json:"phone" gorm:"unique;not null"` // TODO: Regex to verify
-	Email        string `json:"email" gorm:"unique;not null"` // TODO: Regex to verify
+	Phone        string `json:"phone" gorm:"unique;not null"`
+	Email        string `json:"email" gorm:"unique;not null"`
 	Confirmed    bool   `json:"confimed" gorm:"not null;default:FALSE;" `
 }
 
@@ -74,6 +76,8 @@ func (u *User) BeforeSave(tx *gorm.DB) error {
 	return err
 }
 
+var phoneRegex = regexp.MustCompile(`(?m)^\d{2,18}$`)
+
 func (u *User) BeforeCreate(tx *gorm.DB) error {
 	bErr := u.Model.BeforeSave(tx)
 	if bErr != nil {
@@ -82,5 +86,13 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 	if len(u.PasswordHash) == 0 {
 		return fmt.Errorf("password is empty")
 	}
+	if !phoneRegex.MatchString(u.Phone) {
+		println(u.Phone)
+		return fmt.Errorf("invalid phone")
+	}
+	if _, pErr := mail.ParseAddress(u.Email); pErr != nil {
+		return pErr
+	}
+
 	return nil
 }

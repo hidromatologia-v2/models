@@ -61,6 +61,16 @@ func testUser(t *testing.T, db *gorm.DB) {
 		u.Password = ""
 		assert.NotNil(tt, db.Create(u).Error)
 	})
+	t.Run("BeforeSave-InvalidPhone", func(tt *testing.T) {
+		u := RandomUser()
+		u.Phone = ""
+		assert.NotNil(tt, db.Create(u).Error)
+	})
+	t.Run("BeforeSave-InvalidEmail", func(tt *testing.T) {
+		u := RandomUser()
+		u.Email = ""
+		assert.NotNil(tt, db.Create(u).Error)
+	})
 }
 
 func TestUser(t *testing.T) {
