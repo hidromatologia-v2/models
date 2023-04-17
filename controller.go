@@ -26,7 +26,7 @@ func NewController(db *gorm.DB, secret []byte) *Controller {
 	}
 	c.DB.AutoMigrate(
 		&tables.User{}, &tables.Station{}, &tables.Sensor{},
-		&tables.SensorRegistry{}, &tables.Alert{},
+		&tables.SensorRegistry{}, &tables.Alert{}, &tables.Admin{},
 	)
 	return c
 }
