@@ -29,7 +29,7 @@ type User struct {
 	Name         string    `json:"name" gorm:"not null"`
 	Phone        string    `json:"phone" gorm:"unique;not null"`
 	Email        string    `json:"email" gorm:"unique;not null"`
-	Confirmed    bool      `json:"confimed" gorm:"not null;default:FALSE;"`
+	Confirmed    bool      `json:"confirmed" gorm:"not null;default:FALSE;"`
 	Stations     []Station `json:"stations"`
 }
 
