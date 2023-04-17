@@ -15,11 +15,11 @@ func TestRandomAdmin(t *testing.T) {
 }
 
 func testAdmin(t *testing.T, db *gorm.DB) {
-	t.Run("ValidUser", func(tt *testing.T) {
+	t.Run("ValidAdmin", func(tt *testing.T) {
 		a := RandomAdmin()
 		assert.Nil(tt, db.Create(a).Error)
 	})
-	t.Run("RepeatedUser", func(tt *testing.T) {
+	t.Run("RepeatedAdmin", func(tt *testing.T) {
 		a := RandomAdmin()
 		assert.Nil(tt, db.Create(a).Error)
 		assert.NotNil(tt, db.Create(a).Error)
@@ -31,16 +31,16 @@ func testAdmin(t *testing.T, db *gorm.DB) {
 	})
 	t.Run("FromClaims-Valid", func(tt *testing.T) {
 		a := RandomAdmin()
-		var u2 User
-		assert.Nil(tt, u2.FromClaims(a.Claims()))
-		assert.Equal(tt, a.UUID, u2.UUID)
+		var a2 Admin
+		assert.Nil(tt, a2.FromClaims(a.Claims()))
+		assert.Equal(tt, a.UUID, a2.UUID)
 	})
 	t.Run("FromClaims-NoUUID", func(tt *testing.T) {
 		a := RandomAdmin()
-		var u2 User
+		var a2 Admin
 		claims := a.Claims()
 		delete(claims, "uuid")
-		assert.NotNil(tt, u2.FromClaims(claims))
+		assert.NotNil(tt, a2.FromClaims(claims))
 	})
 	t.Run("Authenticate-Succeed", func(tt *testing.T) {
 		a := RandomAdmin()
@@ -52,7 +52,7 @@ func testAdmin(t *testing.T, db *gorm.DB) {
 		a.PasswordHash, _ = bcrypt.GenerateFromPassword([]byte(a.Password), DefaultPasswordCost)
 		assert.False(tt, a.Authenticate("wrong"))
 	})
-	t.Run("BeforeSave-ValidUser", func(tt *testing.T) {
+	t.Run("BeforeSave-ValidAdmin", func(tt *testing.T) {
 		a := RandomAdmin()
 		assert.Nil(tt, db.Create(a).Error)
 	})

@@ -63,19 +63,72 @@ func TestDeleteAlert(t *testing.T) {
 }
 
 func testUpdateAlert(t *testing.T, c *Controller) {
-	t.Run("Valid", func(tt *testing.T) {
+	t.Run("Name", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
 		s := tables.RandomStation(u)
 		assert.Nil(tt, c.DB.Create(s).Error)
 		a := tables.RandomAlert(u, &s.Sensors[0])
 		assert.Nil(tt, c.DB.Create(a).Error)
-		alert := *a
-		alert.Name = random.String()
-		assert.Nil(tt, c.UpdateAlert(u, &alert))
-		var a2 tables.Alert
-		assert.Nil(tt, c.DB.Where("uuid = ?", a.UUID).First(&a2).Error)
-		assert.NotEqual(tt, a.Name, a2.Name)
+		originalName := *a.Name
+		newName := random.String()
+		assert.Nil(tt, c.UpdateAlert(u, &tables.Alert{
+			Model: tables.Model{
+				UUID: a.UUID,
+			},
+			Name: &newName,
+		}))
+		var alert tables.Alert
+		assert.Nil(tt, c.DB.Where("uuid = ?", a.UUID).First(&alert).Error)
+		assert.NotEqual(tt, originalName, *alert.Name)
+		assert.Equal(tt, newName, *alert.Name)
+	})
+	t.Run("Condition", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		a := tables.RandomAlert(u, &s.Sensors[0])
+		assert.Nil(tt, c.DB.Create(a).Error)
+		originalCondition := *a.ConditionOP
+		var newCondition string
+		for c := range tables.ConditionsOPs {
+			if c == originalCondition {
+				continue
+			}
+			newCondition = c
+			break
+		}
+		assert.Nil(tt, c.UpdateAlert(u, &tables.Alert{
+			Model: tables.Model{
+				UUID: a.UUID,
+			},
+			ConditionOP: &newCondition,
+		}))
+		var alert tables.Alert
+		assert.Nil(tt, c.DB.Where("uuid = ?", a.UUID).First(&alert).Error)
+		assert.NotEqual(tt, originalCondition, *alert.ConditionOP)
+		assert.Equal(tt, newCondition, *alert.ConditionOP)
+	})
+	t.Run("Value", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		a := tables.RandomAlert(u, &s.Sensors[0])
+		assert.Nil(tt, c.DB.Create(a).Error)
+		originalValue := *a.Value
+		newValue := originalValue + 10
+		assert.Nil(tt, c.UpdateAlert(u, &tables.Alert{
+			Model: tables.Model{
+				UUID: a.UUID,
+			},
+			Value: &newValue,
+		}))
+		var alert tables.Alert
+		assert.Nil(tt, c.DB.Where("uuid = ?", a.UUID).First(&alert).Error)
+		assert.NotEqual(tt, originalValue, *alert.Value)
+		assert.Equal(tt, newValue, *alert.Value)
 	})
 	t.Run("Unauthorized", func(tt *testing.T) {
 		u := tables.RandomUser()
@@ -87,7 +140,7 @@ func testUpdateAlert(t *testing.T, c *Controller) {
 		u2 := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u2).Error)
 		alert := *a
-		alert.Name = random.String()
+		*alert.Name = random.String()
 		assert.NotNil(tt, c.UpdateAlert(u2, &alert))
 	})
 }

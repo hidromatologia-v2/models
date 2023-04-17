@@ -16,14 +16,6 @@ func testAlert(t *testing.T, db *gorm.DB) {
 		s := RandomStation(u)
 		assert.Nil(tt, db.Create(s).Error)
 		targetSensor := s.Sensors[0]
-		var r []SensorRegistry
-		for i := 0; i < 5; i++ {
-			r = append(r, SensorRegistry{
-				SensorUUID: targetSensor.UUID,
-				Value:      float64(i),
-			})
-		}
-		assert.Nil(tt, db.Create(r).Error)
 		a := RandomAlert(u, &targetSensor)
 		assert.Nil(tt, db.Create(a).Error)
 		var alert Alert
@@ -32,6 +24,58 @@ func testAlert(t *testing.T, db *gorm.DB) {
 		assert.Equal(tt, a.ConditionOP, alert.ConditionOP)
 		assert.Equal(tt, a.Condition, alert.Condition)
 		assert.Equal(tt, a.Value, alert.Value)
+	})
+	t.Run("NoName", func(tt *testing.T) {
+		u := RandomUser()
+		assert.Nil(tt, db.Create(u).Error)
+		s := RandomStation(u)
+		assert.Nil(tt, db.Create(s).Error)
+		targetSensor := s.Sensors[0]
+		a := RandomAlert(u, &targetSensor)
+		a.Name = nil
+		assert.NotNil(tt, db.Create(a).Error)
+	})
+	t.Run("NoConditionOP", func(tt *testing.T) {
+		u := RandomUser()
+		assert.Nil(tt, db.Create(u).Error)
+		s := RandomStation(u)
+		assert.Nil(tt, db.Create(s).Error)
+		targetSensor := s.Sensors[0]
+		a := RandomAlert(u, &targetSensor)
+		a.ConditionOP = nil
+		assert.NotNil(tt, db.Create(a).Error)
+	})
+	t.Run("NoValue", func(tt *testing.T) {
+		u := RandomUser()
+		assert.Nil(tt, db.Create(u).Error)
+		s := RandomStation(u)
+		assert.Nil(tt, db.Create(s).Error)
+		targetSensor := s.Sensors[0]
+		a := RandomAlert(u, &targetSensor)
+		a.Value = nil
+		assert.NotNil(tt, db.Create(a).Error)
+	})
+	t.Run("UpdateCondition", func(tt *testing.T) {
+		u := RandomUser()
+		assert.Nil(tt, db.Create(u).Error)
+		s := RandomStation(u)
+		assert.Nil(tt, db.Create(s).Error)
+		targetSensor := s.Sensors[0]
+		a := RandomAlert(u, &targetSensor)
+		assert.Nil(tt, db.Create(a).Error)
+		*a.ConditionOP = ">="
+		assert.Nil(tt, db.Where("uuid = ?", a.UUID).Where("user_uuid = ?", u.UUID).Limit(1).Updates(a).Error)
+	})
+	t.Run("UpdateWithNilCondition", func(tt *testing.T) {
+		u := RandomUser()
+		assert.Nil(tt, db.Create(u).Error)
+		s := RandomStation(u)
+		assert.Nil(tt, db.Create(s).Error)
+		targetSensor := s.Sensors[0]
+		a := RandomAlert(u, &targetSensor)
+		assert.Nil(tt, db.Create(a).Error)
+		a.ConditionOP = nil
+		assert.Nil(tt, db.Where("uuid = ?", a.UUID).Where("user_uuid = ?", u.UUID).Limit(1).Updates(a).Error)
 	})
 }
 

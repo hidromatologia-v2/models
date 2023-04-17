@@ -34,7 +34,15 @@ func (c *Controller) UpdateAlert(user *tables.User, alert *tables.Alert) error {
 		Where("user_uuid = ?", user.UUID).
 		Where("uuid = ?", alert.UUID).
 		Limit(1).
-		Updates(alert)
+		Updates(
+			&tables.Alert{
+				Model:       tables.Model{UUID: alert.UUID},
+				Name:        alert.Name,
+				ConditionOP: alert.ConditionOP,
+				Value:       alert.Value,
+				Enabled:     alert.Enabled,
+			},
+		)
 	if err := query.Error; err != nil {
 		return err
 	}
