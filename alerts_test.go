@@ -91,8 +91,9 @@ func testUpdateAlert(t *testing.T, c *Controller) {
 		a := tables.RandomAlert(u, &s.Sensors[0])
 		assert.Nil(tt, c.DB.Create(a).Error)
 		originalCondition := *a.Condition
-		newCondition := tables.Conditions[random.Int(len(tables.Conditions))]
-
+		var newCondition string
+		for newCondition = tables.Conditions[random.Int(len(tables.Conditions))]; newCondition == originalCondition; newCondition = tables.Conditions[random.Int(len(tables.Conditions))] {
+		}
 		assert.Nil(tt, c.UpdateAlert(u, &tables.Alert{
 			Model: tables.Model{
 				UUID: a.UUID,
@@ -181,5 +182,85 @@ func TestQueryOneAlert(t *testing.T) {
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testQueryOneAlert(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+	})
+}
+
+func testQueryManyAlert(t *testing.T, c *Controller) {
+	t.Run("NoFilter", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		for i := 0; i < 100; i++ {
+			a := tables.RandomAlert(u, &s.Sensors[0])
+			assert.Nil(tt, c.DB.Create(a).Error)
+		}
+		results, qErr := c.QueryManyAlert(u, &Filter[tables.Alert]{PageSize: 100})
+		assert.Nil(tt, qErr)
+		assert.Equal(tt, 100, results.Count)
+	})
+	t.Run("SensorUUID", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		for i := 0; i < 100; i++ {
+			a := tables.RandomAlert(u, &s.Sensors[0])
+			assert.Nil(tt, c.DB.Create(a).Error)
+		}
+		results, qErr := c.QueryManyAlert(u, &Filter[tables.Alert]{PageSize: 100, Target: tables.Alert{SensorUUID: s.Sensors[0].UUID}})
+		assert.Nil(tt, qErr)
+		assert.Greater(tt, results.Count, 0)
+	})
+	t.Run("Name", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		for i := 0; i < 100; i++ {
+			a := tables.RandomAlert(u, &s.Sensors[0])
+			assert.Nil(tt, c.DB.Create(a).Error)
+		}
+		name := "%a%"
+		results, qErr := c.QueryManyAlert(u, &Filter[tables.Alert]{PageSize: 100, Target: tables.Alert{Name: &name}})
+		assert.Nil(tt, qErr)
+		assert.Greater(tt, results.Count, 0)
+	})
+	t.Run("Condition", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		for i := 0; i < 1000; i++ {
+			a := tables.RandomAlert(u, &s.Sensors[0])
+			assert.Nil(tt, c.DB.Create(a).Error)
+		}
+		condition := ">"
+		results, qErr := c.QueryManyAlert(u, &Filter[tables.Alert]{PageSize: 100, Target: tables.Alert{Condition: &condition}})
+		assert.Nil(tt, qErr)
+		assert.Greater(tt, results.Count, 0)
+	})
+	t.Run("Enabled", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		for i := 0; i < 1000; i++ {
+			a := tables.RandomAlert(u, &s.Sensors[0])
+			assert.Nil(tt, c.DB.Create(a).Error)
+		}
+		enabled := false
+		results, qErr := c.QueryManyAlert(u, &Filter[tables.Alert]{PageSize: 1000, Target: tables.Alert{Enabled: &enabled}})
+		assert.Nil(tt, qErr)
+		assert.Greater(tt, results.Count, 0)
+	})
+}
+
+func TestQueryManyAlert(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testQueryManyAlert(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testQueryManyAlert(tt, NewController(postgres.NewDefault(), []byte(random.String())))
 	})
 }

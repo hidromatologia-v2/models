@@ -11,8 +11,9 @@ type (
 		Target   T   `json:"target"`
 	}
 	Results[T any] struct {
-		Page    int `json:"page"`
-		Count   int `json:"count"`
-		Entries []T `json:"entries"`
+		Page     int `json:"page"`
+		PageSize int `json:"pageSize"`
+		Count    int `json:"count"`
+		Entries  []T `json:"entries"`
 	}
 )
