@@ -153,3 +153,39 @@ func TestUpdateAlert(t *testing.T) {
 		testUpdateAlert(tt, NewController(postgres.NewDefault(), []byte(random.String())))
 	})
 }
+
+func testQueryOneAlert(t *testing.T, c *Controller) {
+	t.Run("Valid", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		a := tables.RandomAlert(u, &s.Sensors[0])
+		assert.Nil(tt, c.DB.Create(a).Error)
+		alert, qErr := c.QueryOneAlert(u, a)
+		assert.Nil(tt, qErr)
+		assert.Equal(tt, *a.Name, *alert.Name)
+	})
+	t.Run("Unauthorized", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		a := tables.RandomAlert(u, &s.Sensors[0])
+		assert.Nil(tt, c.DB.Create(a).Error)
+		u2 := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u2).Error)
+		alert, qErr := c.QueryOneAlert(u2, a)
+		assert.NotNil(tt, qErr)
+		assert.Nil(tt, alert)
+	})
+}
+
+func TestQueryOneAlert(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testQueryOneAlert(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testQueryOneAlert(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+	})
+}

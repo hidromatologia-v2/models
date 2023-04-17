@@ -51,3 +51,18 @@ func (c *Controller) UpdateAlert(user *tables.User, alert *tables.Alert) error {
 	}
 	return nil
 }
+
+func (c *Controller) QueryOneAlert(user *tables.User, alert *tables.Alert) (*tables.Alert, error) {
+	result := new(tables.Alert)
+	query := c.DB.
+		Where("user_uuid = ?", user.UUID).
+		Where("uuid = ?", alert.UUID).
+		First(result)
+	if err := query.Error; err != nil {
+		return nil, err
+	}
+	if query.RowsAffected == 0 {
+		return nil, ErrUnauthorized
+	}
+	return result, nil
+}
