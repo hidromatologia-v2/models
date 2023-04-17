@@ -46,9 +46,9 @@ func testDeleteAlert(t *testing.T, c *Controller) {
 		s := tables.RandomStation(u)
 		assert.Nil(tt, c.DB.Create(s).Error)
 		alert := tables.RandomAlert(u, &s.Sensors[0])
+		assert.Nil(tt, c.DB.Create(alert).Error)
 		u2 := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u2).Error)
-		assert.Nil(tt, c.DB.Create(alert).Error)
 		assert.NotNil(tt, c.DeleteAlert(u2, alert))
 	})
 }
@@ -59,5 +59,44 @@ func TestDeleteAlert(t *testing.T) {
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testDeleteAlert(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+	})
+}
+
+func testUpdateAlert(t *testing.T, c *Controller) {
+	t.Run("Valid", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		a := tables.RandomAlert(u, &s.Sensors[0])
+		assert.Nil(tt, c.DB.Create(a).Error)
+		alert := *a
+		alert.Name = random.String()
+		assert.Nil(tt, c.UpdateAlert(u, &alert))
+		var a2 tables.Alert
+		assert.Nil(tt, c.DB.Where("uuid = ?", a.UUID).First(&a2).Error)
+		assert.NotEqual(tt, a.Name, a2.Name)
+	})
+	t.Run("Unauthorized", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		a := tables.RandomAlert(u, &s.Sensors[0])
+		assert.Nil(tt, c.DB.Create(a).Error)
+		u2 := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u2).Error)
+		alert := *a
+		alert.Name = random.String()
+		assert.NotNil(tt, c.UpdateAlert(u2, &alert))
+	})
+}
+
+func TestUpdateAlert(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testUpdateAlert(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testUpdateAlert(tt, NewController(postgres.NewDefault(), []byte(random.String())))
 	})
 }
