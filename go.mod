@@ -10,6 +10,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.8.2
 	golang.org/x/crypto v0.8.0
+	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	gorm.io/driver/postgres v1.5.0
 	gorm.io/gorm v1.25.0
 )

@@ -90,25 +90,19 @@ func testUpdateAlert(t *testing.T, c *Controller) {
 		assert.Nil(tt, c.DB.Create(s).Error)
 		a := tables.RandomAlert(u, &s.Sensors[0])
 		assert.Nil(tt, c.DB.Create(a).Error)
-		originalCondition := *a.ConditionOP
-		var newCondition string
-		for c := range tables.ConditionsOPs {
-			if c == originalCondition {
-				continue
-			}
-			newCondition = c
-			break
-		}
+		originalCondition := *a.Condition
+		newCondition := tables.Conditions[random.Int(len(tables.Conditions))]
+
 		assert.Nil(tt, c.UpdateAlert(u, &tables.Alert{
 			Model: tables.Model{
 				UUID: a.UUID,
 			},
-			ConditionOP: &newCondition,
+			Condition: &newCondition,
 		}))
 		var alert tables.Alert
 		assert.Nil(tt, c.DB.Where("uuid = ?", a.UUID).First(&alert).Error)
-		assert.NotEqual(tt, originalCondition, *alert.ConditionOP)
-		assert.Equal(tt, newCondition, *alert.ConditionOP)
+		assert.NotEqual(tt, originalCondition, *alert.Condition)
+		assert.Equal(tt, newCondition, *alert.Condition)
 	})
 	t.Run("Value", func(tt *testing.T) {
 		u := tables.RandomUser()

@@ -21,7 +21,6 @@ func testAlert(t *testing.T, db *gorm.DB) {
 		var alert Alert
 		assert.Nil(tt, db.Where("uuid = ?", a.UUID).First(&alert).Error)
 		assert.Equal(tt, a.Name, alert.Name)
-		assert.Equal(tt, a.ConditionOP, alert.ConditionOP)
 		assert.Equal(tt, a.Condition, alert.Condition)
 		assert.Equal(tt, a.Value, alert.Value)
 	})
@@ -42,7 +41,7 @@ func testAlert(t *testing.T, db *gorm.DB) {
 		assert.Nil(tt, db.Create(s).Error)
 		targetSensor := s.Sensors[0]
 		a := RandomAlert(u, &targetSensor)
-		a.ConditionOP = nil
+		a.Condition = nil
 		assert.NotNil(tt, db.Create(a).Error)
 	})
 	t.Run("NoValue", func(tt *testing.T) {
@@ -63,7 +62,7 @@ func testAlert(t *testing.T, db *gorm.DB) {
 		targetSensor := s.Sensors[0]
 		a := RandomAlert(u, &targetSensor)
 		assert.Nil(tt, db.Create(a).Error)
-		*a.ConditionOP = ">="
+		*a.Condition = ">="
 		assert.Nil(tt, db.Where("uuid = ?", a.UUID).Where("user_uuid = ?", u.UUID).Limit(1).Updates(a).Error)
 	})
 	t.Run("UpdateWithNilCondition", func(tt *testing.T) {
@@ -74,7 +73,7 @@ func testAlert(t *testing.T, db *gorm.DB) {
 		targetSensor := s.Sensors[0]
 		a := RandomAlert(u, &targetSensor)
 		assert.Nil(tt, db.Create(a).Error)
-		a.ConditionOP = nil
+		a.Condition = nil
 		assert.Nil(tt, db.Where("uuid = ?", a.UUID).Where("user_uuid = ?", u.UUID).Limit(1).Updates(a).Error)
 	})
 }
