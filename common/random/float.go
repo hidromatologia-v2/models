@@ -2,6 +2,7 @@ package random
 
 import (
 	cryptoRand "crypto/rand"
+	"math"
 	"math/big"
 	"math/rand"
 
@@ -9,6 +10,6 @@ import (
 )
 
 func Float[T constraints.Float](max T) T {
-	bi, _ := cryptoRand.Int(cryptoRand.Reader, big.NewInt(^(int64(0))))
+	bi, _ := cryptoRand.Int(cryptoRand.Reader, big.NewInt(math.MaxInt64))
 	return T(rand.New(rand.NewSource(bi.Int64())).Float64()) * max
 }
