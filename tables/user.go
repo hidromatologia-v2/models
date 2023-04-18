@@ -80,11 +80,17 @@ func (u *User) BeforeSave(tx *gorm.DB) error {
 
 var phoneRegex = regexp.MustCompile(`(?m)^\d{2,18}$`)
 
+var (
+	True  = true
+	False = false
+)
+
 func (u *User) BeforeUpdate(tx *gorm.DB) error {
 	if u.Phone != nil {
 		if !phoneRegex.MatchString(*u.Phone) {
 			return fmt.Errorf("invalid phone")
 		}
+		u.Confirmed = &False
 	}
 
 	if u.Email != nil {
@@ -92,6 +98,7 @@ func (u *User) BeforeUpdate(tx *gorm.DB) error {
 		if pErr != nil {
 			return pErr
 		}
+		u.Confirmed = &False
 	}
 	return nil
 }
