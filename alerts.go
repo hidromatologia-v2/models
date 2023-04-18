@@ -8,9 +8,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func (c *Controller) CreateAlert(user *tables.User, alert *tables.Alert) error {
+func (c *Controller) CreateAlert(session *tables.User, alert *tables.Alert) error {
 	return c.DB.Create(&tables.Alert{
-		UserUUID:   user.UUID,
+		UserUUID:   session.UUID,
 		Name:       alert.Name,
 		SensorUUID: alert.SensorUUID,
 		Condition:  alert.Condition,
@@ -19,10 +19,10 @@ func (c *Controller) CreateAlert(user *tables.User, alert *tables.Alert) error {
 	}).Error
 }
 
-func (c *Controller) DeleteAlert(user *tables.User, alert *tables.Alert) error {
+func (c *Controller) DeleteAlert(session *tables.User, alert *tables.Alert) error {
 	query := c.DB.
 		Where("uuid = ?", alert.UUID).
-		Where("user_uuid = ?", user.UUID).
+		Where("user_uuid = ?", session.UUID).
 		Delete(&tables.Alert{})
 	if err := query.Error; err != nil {
 		return err
@@ -33,9 +33,9 @@ func (c *Controller) DeleteAlert(user *tables.User, alert *tables.Alert) error {
 	return nil
 }
 
-func (c *Controller) UpdateAlert(user *tables.User, alert *tables.Alert) error {
+func (c *Controller) UpdateAlert(session *tables.User, alert *tables.Alert) error {
 	query := c.DB.
-		Where("user_uuid = ?", user.UUID).
+		Where("user_uuid = ?", session.UUID).
 		Where("uuid = ?", alert.UUID).
 		Limit(1).
 		Updates(
@@ -56,10 +56,10 @@ func (c *Controller) UpdateAlert(user *tables.User, alert *tables.Alert) error {
 	return nil
 }
 
-func (c *Controller) QueryOneAlert(user *tables.User, alert *tables.Alert) (*tables.Alert, error) {
+func (c *Controller) QueryOneAlert(session *tables.User, alert *tables.Alert) (*tables.Alert, error) {
 	result := new(tables.Alert)
 	query := c.DB.
-		Where("user_uuid = ?", user.UUID).
+		Where("user_uuid = ?", session.UUID).
 		Where("uuid = ?", alert.UUID).
 		First(result)
 	err := query.Error
@@ -72,7 +72,7 @@ func (c *Controller) QueryOneAlert(user *tables.User, alert *tables.Alert) (*tab
 	return nil, err
 }
 
-func (c *Controller) QueryManyAlert(user *tables.User, filter *Filter[tables.Alert]) (*Results[tables.Alert], error) {
+func (c *Controller) QueryManyAlert(session *tables.User, filter *Filter[tables.Alert]) (*Results[tables.Alert], error) {
 	if filter.Page == 0 {
 		filter.Page = 1
 	}
@@ -82,7 +82,7 @@ func (c *Controller) QueryManyAlert(user *tables.User, filter *Filter[tables.Ale
 	if filter.PageSize > 100 {
 		filter.PageSize = 100
 	}
-	query := c.DB.Where("user_uuid = ?", user.UUID)
+	query := c.DB.Where("user_uuid = ?", session.UUID)
 	if filter.Target.SensorUUID != uuid.Nil {
 		query = query.Where("sensor_uuid = ?", filter.Target.SensorUUID)
 	}

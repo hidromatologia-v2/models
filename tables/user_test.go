@@ -3,6 +3,7 @@ package tables
 import (
 	"testing"
 
+	"github.com/brianvoe/gofakeit/v6"
 	"github.com/hidromatologia-v2/models/common/postgres"
 	"github.com/hidromatologia-v2/models/common/sqlite"
 	"github.com/stretchr/testify/assert"
@@ -63,12 +64,12 @@ func testUser(t *testing.T, db *gorm.DB) {
 	})
 	t.Run("BeforeSave-InvalidPhone", func(tt *testing.T) {
 		u := RandomUser()
-		u.Phone = ""
+		*u.Phone = ""
 		assert.NotNil(tt, db.Create(u).Error)
 	})
 	t.Run("BeforeSave-InvalidEmail", func(tt *testing.T) {
 		u := RandomUser()
-		u.Email = ""
+		*u.Email = ""
 		assert.NotNil(tt, db.Create(u).Error)
 	})
 	t.Run("Stations", func(tt *testing.T) {
@@ -79,6 +80,16 @@ func testUser(t *testing.T, db *gorm.DB) {
 		var user User
 		assert.Nil(tt, db.Preload("Stations").Where("uuid = ?", u.UUID).First(&user).Error)
 		assert.Len(tt, user.Stations, 1)
+	})
+	t.Run("Update", func(tt *testing.T) {
+		u := RandomUser()
+		assert.Nil(tt, db.Create(u).Error)
+		person := gofakeit.NewCrypto().Person()
+		assert.Nil(tt, db.Where("uuid = ?", u.UUID).Updates(&User{
+			Name:  &person.FirstName,
+			Phone: &person.Contact.Phone,
+			Email: &person.Contact.Email,
+		}).Error)
 	})
 }
 
