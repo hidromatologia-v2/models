@@ -1,8 +1,11 @@
 package models
 
 import (
+	"errors"
+
 	"github.com/hidromatologia-v2/models/tables"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 func (c *Controller) CreateAlert(user *tables.User, alert *tables.Alert) error {
@@ -59,13 +62,14 @@ func (c *Controller) QueryOneAlert(user *tables.User, alert *tables.Alert) (*tab
 		Where("user_uuid = ?", user.UUID).
 		Where("uuid = ?", alert.UUID).
 		First(result)
-	if err := query.Error; err != nil {
-		return nil, err
+	err := query.Error
+	if err == nil {
+		return result, nil
 	}
-	if query.RowsAffected == 0 {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrUnauthorized
 	}
-	return result, nil
+	return nil, err
 }
 
 func (c *Controller) QueryManyAlert(user *tables.User, filter *Filter[tables.Alert]) (*Results[tables.Alert], error) {
