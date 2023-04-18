@@ -11,6 +11,7 @@ import (
 )
 
 func testAuthenticate(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -50,6 +51,7 @@ func TestAuthenticate(t *testing.T) {
 }
 
 func testRegister(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.Register(u))
@@ -71,6 +73,7 @@ func TestRegister(t *testing.T) {
 }
 
 func testAuthorize(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.Register(u))
@@ -105,6 +108,7 @@ func TestAuthorize(t *testing.T) {
 }
 
 func testAuthorizeAPIKey(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)

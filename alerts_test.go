@@ -11,6 +11,7 @@ import (
 )
 
 func testCreateAlert(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -31,6 +32,7 @@ func TestCreateAlert(t *testing.T) {
 }
 
 func testDeleteAlert(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -63,6 +65,7 @@ func TestDeleteAlert(t *testing.T) {
 }
 
 func testUpdateAlert(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Name", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -150,6 +153,7 @@ func TestUpdateAlert(t *testing.T) {
 }
 
 func testQueryOneAlert(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -186,6 +190,7 @@ func TestQueryOneAlert(t *testing.T) {
 }
 
 func testQueryManyAlert(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("NoFilter", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)

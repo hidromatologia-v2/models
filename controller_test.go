@@ -13,6 +13,7 @@ func testController(t *testing.T, c *Controller) {
 	defer func(tt *testing.T) {
 		assert.Nil(tt, c.Close())
 	}(t)
+	defer c.Close()
 }
 
 func TestController(t *testing.T) {
