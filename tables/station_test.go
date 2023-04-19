@@ -55,22 +55,15 @@ func testStation(t *testing.T, db *gorm.DB) {
 		u := RandomUser()
 		assert.Nil(tt, db.Create(u).Error)
 		s := RandomStation(u)
-		s.CountryName = "WATEMALA"
+		*s.Country = 1
 		assert.NotNil(tt, db.Create(s).Error)
 	})
 	t.Run("InvalidSubdivision", func(tt *testing.T) {
 		u := RandomUser()
 		assert.Nil(tt, db.Create(u).Error)
 		s := RandomStation(u)
-		s.SubdivisionName = "WATEMALA"
+		*s.Subdivision = "WATEMALA"
 		assert.NotNil(tt, db.Create(s).Error)
-	})
-	t.Run("NoSubdivision", func(tt *testing.T) {
-		u := RandomUser()
-		assert.Nil(tt, db.Create(u).Error)
-		s := RandomStation(u)
-		s.SubdivisionName = s.CountryName
-		assert.Nil(tt, db.Create(s).Error)
 	})
 	t.Run("Registries", func(tt *testing.T) {
 		u := RandomUser()

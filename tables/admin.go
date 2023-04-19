@@ -1,9 +1,7 @@
 package tables
 
 import (
-	"crypto/rand"
 	"fmt"
-	"math/big"
 	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
@@ -22,7 +20,7 @@ type Admin struct {
 }
 
 func RandomAdmin() *Admin {
-	number, _ := rand.Int(rand.Reader, big.NewInt(100))
+	number := random.Int(100)
 	person := gofakeit.NewCrypto().Person()
 	return &Admin{
 		Username: fmt.Sprintf("%s%d", person.FirstName, number),
