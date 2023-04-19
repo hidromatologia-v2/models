@@ -20,9 +20,9 @@ func testAlert(t *testing.T, db *gorm.DB) {
 		assert.Nil(tt, db.Create(a).Error)
 		var alert Alert
 		assert.Nil(tt, db.Where("uuid = ?", a.UUID).First(&alert).Error)
-		assert.Equal(tt, a.Name, alert.Name)
-		assert.Equal(tt, a.Condition, alert.Condition)
-		assert.Equal(tt, a.Value, alert.Value)
+		assert.Equal(tt, *a.Name, *alert.Name)
+		assert.Equal(tt, *a.Condition, *alert.Condition)
+		assert.Equal(tt, *a.Value, *alert.Value)
 	})
 	t.Run("NoName", func(tt *testing.T) {
 		u := RandomUser()
