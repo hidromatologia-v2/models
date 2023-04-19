@@ -135,3 +135,31 @@ func TestDeleteSensors(t *testing.T) {
 		testDeleteSensors(tt, NewController(postgres.NewDefault(), []byte(random.String())))
 	})
 }
+
+func testDeleteStation(t *testing.T, c *Controller) {
+	t.Run("Valid", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		assert.Nil(tt, c.DeleteStation(u, s))
+	})
+	t.Run("Unauthorized", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		u2 := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u2).Error)
+		assert.NotNil(tt, c.DeleteStation(u2, s))
+	})
+}
+
+func TestDeleteStation(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testDeleteStation(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testDeleteStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+	})
+}

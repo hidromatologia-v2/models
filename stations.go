@@ -89,3 +89,21 @@ func (c *Controller) DeleteSensors(session *tables.User, station *tables.Station
 	}
 	return nil
 }
+
+func (c *Controller) DeleteStation(session *tables.User, station *tables.Station) error {
+	query := c.DB.
+		Where("user_uuid = ?", session.UUID).
+		Where("uuid = ?", station.UUID).
+		Delete(&tables.Station{})
+	fErr := query.Error
+	if fErr == nil {
+		return nil
+	}
+	if query.RowsAffected == 0 {
+		return ErrUnauthorized
+	}
+	if errors.Is(fErr, gorm.ErrRecordNotFound) {
+		return ErrUnauthorized
+	}
+	return fErr
+}
