@@ -30,7 +30,8 @@ type User struct {
 	Phone        *string   `json:"phone" gorm:"unique;not null"`
 	Email        *string   `json:"email" gorm:"unique;not null"`
 	Confirmed    *bool     `json:"confirmed" gorm:"not null;default:FALSE;"`
-	Stations     []Station `json:"stations"`
+	Alerts       []Alert   `json:"alerts" gorm:"constraint:OnDelete:CASCADE;"`
+	Stations     []Station `json:"stations" gorm:"constraint:OnDelete:CASCADE;"`
 }
 
 func RandomUser() *User {

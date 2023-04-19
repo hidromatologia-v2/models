@@ -28,20 +28,20 @@ type (
 		Latitude        float64                   `json:"latitude" gorm:"not null;"`
 		Longitude       float64                   `json:"longitude" gorm:"not null;"`
 		APIKey          string                    `json:"apiKey" gorm:"not null;"`
-		Sensors         []Sensor                  `json:"sensors"`
+		Sensors         []Sensor                  `json:"sensors" gorm:"constraint:OnDelete:CASCADE;"`
 	}
 	Sensor struct {
 		Model
 		Station     Station          `json:"station" gorm:"foreignKey:StationUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 		StationUUID uuid.UUID        `json:"stationUUID" gorm:"uniqueIndex:idx_unique_sensor;not null;"`
 		Type        string           `json:"type" gorm:"uniqueIndex:idx_unique_sensor;not null;"`
-		Registries  []SensorRegistry `json:"registries"`
+		Registries  []SensorRegistry `json:"registries" gorm:"constraint:OnDelete:CASCADE;"`
 	}
 	SensorRegistry struct {
 		Model
 		Sensor     Sensor    `json:"sensor" gorm:"foreignKey:SensorUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 		SensorUUID uuid.UUID `json:"sensorUUID" gorm:"not null;"`
-		Value      float64   `json:"value"`
+		Value      float64   `json:"value" gorm:"constraint:OnDelete:CASCADE;"`
 	}
 )
 

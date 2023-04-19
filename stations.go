@@ -95,12 +95,8 @@ func (c *Controller) DeleteStation(session *tables.User, station *tables.Station
 		Where("user_uuid = ?", session.UUID).
 		Where("uuid = ?", station.UUID).
 		Delete(&tables.Station{})
-	fErr := query.Error
-	if fErr != nil {
-		if errors.Is(fErr, gorm.ErrRecordNotFound) {
-			return ErrUnauthorized
-		}
-		return fErr
+	if dErr := query.Error; dErr != nil {
+		return dErr
 	}
 	if query.RowsAffected == 0 {
 		return ErrUnauthorized
