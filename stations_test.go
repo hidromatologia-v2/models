@@ -12,6 +12,7 @@ import (
 )
 
 func testCreateStation(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		u.Confirmed = new(bool)
@@ -41,6 +42,7 @@ func TestCreateStation(t *testing.T) {
 }
 
 func testAddSensors(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -90,6 +92,7 @@ func TestAddSensors(t *testing.T) {
 }
 
 func testDeleteSensors(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -138,6 +141,7 @@ func TestDeleteSensors(t *testing.T) {
 }
 
 func testDeleteStation(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -166,6 +170,7 @@ func TestDeleteStation(t *testing.T) {
 }
 
 func testUpdateStation(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -218,6 +223,7 @@ func TestUpdateStation(t *testing.T) {
 }
 
 func testQueryStation(t *testing.T, c *Controller) {
+	defer c.Close()
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -235,5 +241,143 @@ func TestQueryStation(t *testing.T) {
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testQueryStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+	})
+}
+
+func testQueryManyStation(t *testing.T, c *Controller) {
+	defer c.Close()
+	t.Run("NoFilter", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		for i := 0; i < 100; i++ {
+			s := tables.RandomStation(u)
+			assert.Nil(tt, c.DB.Create(s).Error)
+		}
+		results, qErr := c.QueryManyStation(&Filter[tables.Station]{PageSize: 100})
+		assert.Nil(tt, qErr)
+		assert.Equal(tt, 100, results.Count)
+	})
+	t.Run("Name", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		for i := 0; i < 100; i++ {
+			s := tables.RandomStation(u)
+			assert.Nil(tt, c.DB.Create(s).Error)
+		}
+		name := "%a%"
+		results, qErr := c.QueryManyStation(&Filter[tables.Station]{
+			PageSize: 100,
+			Target: tables.Station{
+				Name: &name,
+			},
+		})
+		assert.Nil(tt, qErr)
+		assert.Greater(tt, results.Count, 0)
+	})
+	t.Run("Description", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		for i := 0; i < 100; i++ {
+			s := tables.RandomStation(u)
+			assert.Nil(tt, c.DB.Create(s).Error)
+		}
+		description := "%a%"
+		results, qErr := c.QueryManyStation(&Filter[tables.Station]{
+			PageSize: 100,
+			Target: tables.Station{
+				Description: &description,
+			},
+		})
+		assert.Nil(tt, qErr)
+		assert.Greater(tt, results.Count, 0)
+	})
+	t.Run("Country", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		var country countries.CountryCode
+		for i := 0; i < 100; i++ {
+			s := tables.RandomStation(u)
+			if country == countries.Unknown {
+				country = *s.Country
+			}
+			assert.Nil(tt, c.DB.Create(s).Error)
+		}
+		results, qErr := c.QueryManyStation(&Filter[tables.Station]{
+			PageSize: 100,
+			Target: tables.Station{
+				Country: &country,
+			},
+		})
+		assert.Nil(tt, qErr)
+		assert.Greater(tt, results.Count, 0)
+	})
+	t.Run("Subdivision", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		var subdivision countries.SubdivisionCode
+		for i := 0; i < 100; i++ {
+			s := tables.RandomStation(u)
+			if subdivision == "" {
+				subdivision = *s.Subdivision
+			}
+			assert.Nil(tt, c.DB.Create(s).Error)
+		}
+		results, qErr := c.QueryManyStation(&Filter[tables.Station]{
+			PageSize: 100,
+			Target: tables.Station{
+				Subdivision: &subdivision,
+			},
+		})
+		assert.Nil(tt, qErr)
+		assert.Greater(tt, results.Count, 0)
+	})
+	t.Run("Latitude", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		var latitude float64
+		for i := 0; i < 100; i++ {
+			s := tables.RandomStation(u)
+			if latitude == 0.0 {
+				latitude = *s.Latitude
+			}
+			assert.Nil(tt, c.DB.Create(s).Error)
+		}
+		results, qErr := c.QueryManyStation(&Filter[tables.Station]{
+			PageSize: 100,
+			Target: tables.Station{
+				Latitude: &latitude,
+			},
+		})
+		assert.Nil(tt, qErr)
+		assert.Greater(tt, results.Count, 0)
+	})
+	t.Run("Longitude", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		var longitude float64
+		for i := 0; i < 100; i++ {
+			s := tables.RandomStation(u)
+			if longitude == 0.0 {
+				longitude = *s.Longitude
+			}
+			assert.Nil(tt, c.DB.Create(s).Error)
+		}
+		results, qErr := c.QueryManyStation(&Filter[tables.Station]{
+			PageSize: 100,
+			Target: tables.Station{
+				Longitude: &longitude,
+			},
+		})
+		assert.Nil(tt, qErr)
+		assert.Greater(tt, results.Count, 0)
+	})
+}
+
+func TestQueryManyStation(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testQueryManyStation(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testQueryManyStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
 	})
 }

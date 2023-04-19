@@ -132,3 +132,48 @@ func (c *Controller) QueryStation(station *tables.Station) (*tables.Station, err
 		First(&s).Error
 	return s, qErr
 }
+
+func (c *Controller) QueryManyStation(filter *Filter[tables.Station]) (*Results[tables.Station], error) {
+	if filter.Page == 0 {
+		filter.Page = 1
+	}
+	if filter.PageSize == 0 {
+		filter.PageSize = 10
+	}
+	if filter.PageSize > 100 {
+		filter.PageSize = 100
+	}
+	query := c.DB
+	if filter.Target.Name != nil {
+		query = query.Where("name LIKE ?", *filter.Target.Name)
+	}
+	if filter.Target.Description != nil {
+		query = query.Where("description LIKE ?", *filter.Target.Description)
+	}
+	if filter.Target.Country != nil {
+		query = query.Where("country = ?", *filter.Target.Country)
+	}
+	if filter.Target.Subdivision != nil {
+		query = query.Where("subdivision = ?", *filter.Target.Subdivision)
+	}
+	if filter.Target.Latitude != nil {
+		query = query.Where("latitude = ?", *filter.Target.Latitude)
+	}
+	if filter.Target.Longitude != nil {
+		query = query.Where("longitude = ?", *filter.Target.Longitude)
+	}
+	result := &Results[tables.Station]{
+		Page:     filter.Page,
+		PageSize: filter.PageSize,
+	}
+	query = query.
+		Order("uuid DESC").
+		Offset(filter.PageSize * (filter.Page - 1)).
+		Limit(filter.PageSize).
+		Find(&result.Entries)
+	if err := query.Error; err != nil {
+		return nil, err
+	}
+	result.Count = len(result.Entries)
+	return result, nil
+}
