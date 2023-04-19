@@ -216,3 +216,24 @@ func TestUpdateStation(t *testing.T) {
 		testUpdateStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
 	})
 }
+
+func testQueryStation(t *testing.T, c *Controller) {
+	t.Run("Valid", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		station, qErr := c.QueryStation(s)
+		assert.Nil(tt, qErr)
+		assert.Equal(tt, s.UUID, station.UUID)
+	})
+}
+
+func TestQueryStation(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testQueryStation(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testQueryStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+	})
+}

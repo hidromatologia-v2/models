@@ -124,3 +124,11 @@ func (c *Controller) UpdateStation(session *tables.User, station *tables.Station
 	}
 	return nil
 }
+
+func (c *Controller) QueryStation(station *tables.Station) (*tables.Station, error) {
+	s := new(tables.Station)
+	qErr := c.DB.
+		Where("uuid = ?", station.UUID).
+		First(&s).Error
+	return s, qErr
+}
