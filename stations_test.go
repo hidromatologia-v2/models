@@ -2,6 +2,7 @@ package models
 
 import (
 	"testing"
+	"time"
 
 	"github.com/biter777/countries"
 	"github.com/hidromatologia-v2/models/common/postgres"
@@ -379,5 +380,80 @@ func TestQueryManyStation(t *testing.T) {
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testQueryManyStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+	})
+}
+
+func testHistorical(t *testing.T, c *Controller) {
+	defer c.Close()
+	t.Run("All", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		sensorUUID := s.Sensors[0].UUID
+		r := make([]tables.SensorRegistry, 0, 1000)
+		for i := 0; i < 1000; i++ {
+			r = append(r, tables.SensorRegistry{
+				SensorUUID: sensorUUID,
+				Value:      random.Float(10000.0),
+			})
+		}
+		assert.Nil(tt, c.DB.Create(r).Error)
+		registries, hErr := c.Historical(&HistoricalFilter{
+			SensorUUID: sensorUUID,
+		})
+		assert.Nil(tt, hErr)
+		assert.NotNil(tt, registries)
+		assert.Len(tt, registries, 1000)
+	})
+	t.Run("Time Range", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		sensorUUID := s.Sensors[0].UUID
+		// Time
+		from := time.Now()
+		{
+			r := make([]tables.SensorRegistry, 0, 10)
+
+			for i := 0; i < 10; i++ {
+				r = append(r, tables.SensorRegistry{
+					SensorUUID: sensorUUID,
+					Value:      random.Float(10000.0),
+				})
+			}
+			assert.Nil(tt, c.DB.Create(r).Error)
+		}
+		to := time.Now()
+		// Other
+		{
+			r := make([]tables.SensorRegistry, 0, 1000)
+			for i := 0; i < 1000; i++ {
+				r = append(r, tables.SensorRegistry{
+					SensorUUID: sensorUUID,
+					Value:      random.Float(10000.0),
+				})
+			}
+			assert.Nil(tt, c.DB.Create(r).Error)
+		}
+		//
+		registries, hErr := c.Historical(&HistoricalFilter{
+			SensorUUID: sensorUUID,
+			From:       &from,
+			To:         &to,
+		})
+		assert.Nil(tt, hErr)
+		assert.NotNil(tt, registries)
+		assert.Len(tt, registries, 10)
+	})
+}
+
+func TestHistorical(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testHistorical(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testHistorical(tt, NewController(postgres.NewDefault(), []byte(random.String())))
 	})
 }

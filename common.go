@@ -1,6 +1,11 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+
+	uuid "github.com/satori/go.uuid"
+)
 
 var ErrUnauthorized = fmt.Errorf("unauthorized")
 
@@ -15,5 +20,10 @@ type (
 		PageSize int `json:"pageSize"`
 		Count    int `json:"count"`
 		Entries  []T `json:"entries"`
+	}
+	HistoricalFilter struct {
+		SensorUUID uuid.UUID  `json:"sensorUUID"`
+		From       *time.Time `json:"from"`
+		To         *time.Time `json:"to"`
 	}
 )

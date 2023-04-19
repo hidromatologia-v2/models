@@ -177,3 +177,19 @@ func (c *Controller) QueryManyStation(filter *Filter[tables.Station]) (*Results[
 	result.Count = len(result.Entries)
 	return result, nil
 }
+
+func (c *Controller) Historical(filter *HistoricalFilter) ([]tables.SensorRegistry, error) {
+	query := c.DB.
+		Where("sensor_uuid = ?", filter.SensorUUID)
+	if filter.From != nil {
+		query = query.
+			Where("? <= created_at", filter.From)
+	}
+	if filter.To != nil {
+		query = query.
+			Where("created_at <= ?", filter.To)
+	}
+	var results []tables.SensorRegistry
+	qErr := query.Find(&results).Error
+	return results, qErr
+}
