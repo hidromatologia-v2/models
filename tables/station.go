@@ -92,7 +92,7 @@ func (s *Station) BeforeSave(tx *gorm.DB) error {
 func RandomSensor(station *Station) *Sensor {
 	return &Sensor{
 		StationUUID: station.UUID,
-		Type:        fmt.Sprintf("%s %s %s %s", gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word()),
+		Type:        random.Name(),
 	}
 }
 
@@ -101,7 +101,7 @@ func RandomStation(user *User) *Station {
 	longitude, _ := rand.Int(rand.Reader, big.NewInt(int64(1000)))
 	station := &Station{
 		UserUUID:        user.UUID,
-		Name:            fmt.Sprintf("%s %s %s %s", gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word()),
+		Name:            random.Name(),
 		CountryName:     countries.Colombia.String(),
 		SubdivisionName: countries.Colombia.Subdivisions()[0].String(),
 		Description:     gofakeit.NewCrypto().JobDescriptor(),

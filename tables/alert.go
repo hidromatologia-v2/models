@@ -3,7 +3,6 @@ package tables
 import (
 	"fmt"
 
-	"github.com/brianvoe/gofakeit/v6"
 	"github.com/hidromatologia-v2/models/common/random"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -68,7 +67,7 @@ func (a *Alert) BeforeCreate(tx *gorm.DB) error {
 }
 
 func RandomAlert(user *User, sensor *Sensor) *Alert {
-	name := fmt.Sprintf("%s %s %s %s", gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word())
+	name := random.Name()
 	value := random.Float(1000.0)
 	condition := Conditions[random.Int(len(Conditions))]
 	return &Alert{
