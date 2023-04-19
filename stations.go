@@ -3,7 +3,6 @@ package models
 import (
 	"errors"
 
-	"github.com/hidromatologia-v2/models/common/random"
 	"github.com/hidromatologia-v2/models/tables"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -19,16 +18,13 @@ func (c *Controller) CreateStation(session *tables.User, station *tables.Station
 		return nil, ErrUnauthorized
 	}
 	s := &tables.Station{
-		UserUUID:        user.UUID,
-		Name:            station.Name,
-		Description:     station.Description,
-		CountryName:     station.CountryName,
-		SubdivisionName: station.SubdivisionName,
-		Country:         station.Country,
-		Subdivision:     station.Subdivision,
-		Latitude:        station.Latitude,
-		Longitude:       station.Longitude,
-		APIKey:          random.String(),
+		UserUUID:    user.UUID,
+		Name:        station.Name,
+		Description: station.Description,
+		Country:     station.Country,
+		Subdivision: station.Subdivision,
+		Latitude:    station.Latitude,
+		Longitude:   station.Longitude,
 	}
 	err := c.DB.Create(s).Error
 	if err != nil {
@@ -97,6 +93,31 @@ func (c *Controller) DeleteStation(session *tables.User, station *tables.Station
 		Delete(&tables.Station{})
 	if dErr := query.Error; dErr != nil {
 		return dErr
+	}
+	if query.RowsAffected == 0 {
+		return ErrUnauthorized
+	}
+	return nil
+}
+
+func (c *Controller) UpdateStation(session *tables.User, station *tables.Station) error {
+	query := c.DB.
+		Where("user_uuid = ?", session.UUID).
+		Where("uuid = ?", station.UUID).
+		Limit(1).
+		Updates(
+			&tables.Station{
+				Model:       tables.Model{UUID: station.UUID},
+				Name:        station.Name,
+				Description: station.Description,
+				Country:     station.Country,
+				Subdivision: station.Subdivision,
+				Latitude:    station.Latitude,
+				Longitude:   station.Longitude,
+			},
+		)
+	if err := query.Error; err != nil {
+		return err
 	}
 	if query.RowsAffected == 0 {
 		return ErrUnauthorized

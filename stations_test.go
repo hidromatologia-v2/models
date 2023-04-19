@@ -3,6 +3,7 @@ package models
 import (
 	"testing"
 
+	"github.com/biter777/countries"
 	"github.com/hidromatologia-v2/models/common/postgres"
 	"github.com/hidromatologia-v2/models/common/random"
 	"github.com/hidromatologia-v2/models/common/sqlite"
@@ -161,5 +162,57 @@ func TestDeleteStation(t *testing.T) {
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testDeleteStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+	})
+}
+
+func testUpdateStation(t *testing.T, c *Controller) {
+	t.Run("Valid", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		// -- Update station
+		name := random.Name()
+		description := random.Name()
+		country := countries.UnitedKingdom
+		subdivision := countries.SubdivisionCode("Santander")
+		latitude := random.Float(1000.0)
+		longitude := random.Float(1000.0)
+		assert.Nil(tt, c.UpdateStation(u, &tables.Station{
+			Model:       s.Model,
+			Name:        &name,
+			Description: &description,
+			Country:     &country,
+			Subdivision: &subdivision,
+			Latitude:    &latitude,
+			Longitude:   &longitude,
+		}))
+		//
+		var station tables.Station
+		assert.Nil(tt, c.DB.Where("uuid = ?", s.UUID).First(&station).Error)
+		assert.NotEqual(tt, *s.Name, *station.Name)
+		assert.NotEqual(tt, *s.Description, *station.Description)
+		assert.NotEqual(tt, *s.Country, *station.Country)
+		assert.NotEqual(tt, *s.Subdivision, *station.Subdivision)
+		assert.NotEqual(tt, *s.Latitude, *station.Latitude)
+		assert.NotEqual(tt, *s.Longitude, *station.Longitude)
+	})
+	t.Run("Unauthorized", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		u2 := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u2).Error)
+		assert.NotNil(tt, c.UpdateStation(u2, &tables.Station{Model: s.Model}))
+	})
+}
+
+func TestUpdateStation(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testUpdateStation(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testUpdateStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
 	})
 }
