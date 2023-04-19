@@ -1,87 +1,80 @@
 package tables
 
 import (
-	"crypto/rand"
 	"fmt"
-	"math/big"
 
-	"github.com/brianvoe/gofakeit/v6"
+	"github.com/hidromatologia-v2/models/common/random"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
-type Condition int
-
 const (
-	Lt Condition = iota
-	Gt
-	Le
-	Ge
+	Lt = "<"
+	Gt = ">"
+	Le = "<="
+	Ge = ">="
 )
 
-var Conditions = map[Condition]string{
-	Lt: "<",
-	Gt: ">",
-	Le: "<=",
-	Ge: ">=",
+var Conditions = []string{
+	Lt,
+	Gt,
+	Le,
+	Ge,
 }
 
-var ConditionsOPs = map[string]Condition{
-	"<":  Lt,
-	">":  Gt,
-	"<=": Le,
-	">=": Ge,
+func CheckCondition(condition string) error {
+	switch condition {
+	case Lt:
+		break
+	case Gt:
+		break
+	case Le:
+		break
+	case Ge:
+		break
+	default:
+		return fmt.Errorf("invalid alert condition")
+	}
+	return nil
 }
 
 type Alert struct {
 	Model
-	User        User      `json:"user" gorm:"foreignKey:UserUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	UserUUID    uuid.UUID `json:"userUUID" gorm:"uniqueIndex:idx_unique_alarm;not null;"`
-	Name        string    `json:"name" gorm:"uniqueIndex:idx_unique_alarm;not null;"`
-	Sensor      Sensor    `json:"sensor" gorm:"foreignKey:SensorUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	SensorUUID  uuid.UUID `json:"sensorUUID" gorm:"not null;"`
-	ConditionOP string    `json:"conditionOP" gorm:"-"`
-	Condition   Condition `json:"-" gorm:"not null;"`
-	Value       float64   `json:"value" gorm:"not null;"`
+	User       User      `json:"user" gorm:"foreignKey:UserUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	UserUUID   uuid.UUID `json:"userUUID" gorm:"uniqueIndex:idx_unique_alarm;not null;"`
+	Name       *string   `json:"name" gorm:"uniqueIndex:idx_unique_alarm;not null;"`
+	Sensor     Sensor    `json:"sensor" gorm:"foreignKey:SensorUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	SensorUUID uuid.UUID `json:"sensorUUID" gorm:"not null;"`
+	Condition  *string   `json:"condition" gorm:"not null;"`
+	Value      *float64  `json:"value" gorm:"not null;"`
+	Enabled    *bool     `json:"enabled" gorm:"not null;default:FALSE"`
 }
 
-func (a *Alert) AfterFind(tx *gorm.DB) error {
-	a.ConditionOP = Conditions[a.Condition]
-	return nil
-}
-
-func (a *Alert) BeforeSave(tx *gorm.DB) error {
-	bErr := a.Model.BeforeSave(tx)
-	if bErr != nil {
-		return bErr
+func (a *Alert) BeforeCreate(tx *gorm.DB) error {
+	if a.Name == nil {
+		return fmt.Errorf("no name provided")
 	}
-	op, found := ConditionsOPs[a.ConditionOP]
-	if !found {
-		return fmt.Errorf("invalid condition operator")
+	if a.Condition == nil {
+		return fmt.Errorf("no condition provided")
 	}
-	a.Condition = op
+	if a.Value == nil {
+		return fmt.Errorf("not value provided")
+	}
+	if cErr := CheckCondition(*a.Condition); cErr != nil {
+		return cErr
+	}
 	return nil
 }
 
 func RandomAlert(user *User, sensor *Sensor) *Alert {
-	conditionIndexBigInt, _ := rand.Int(rand.Reader, big.NewInt(int64(len(ConditionsOPs))))
-	conditionIndex := int(conditionIndexBigInt.Int64())
-	var condition string
-	index := 0
-	for c := range ConditionsOPs {
-		if index != conditionIndex {
-			index++
-			continue
-		}
-		condition = c
-		break
-	}
-	value, _ := rand.Int(rand.Reader, big.NewInt(int64(1000)))
+	name := random.Name()
+	value := random.Float(1000.0)
+	condition := Conditions[random.Int(len(Conditions))]
 	return &Alert{
-		UserUUID:    user.UUID,
-		Name:        fmt.Sprintf("%s %s %s %s", gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word(), gofakeit.NewCrypto().Word()),
-		SensorUUID:  sensor.UUID,
-		ConditionOP: condition,
-		Value:       float64(value.Int64()),
+		UserUUID:   user.UUID,
+		Name:       &name,
+		SensorUUID: sensor.UUID,
+		Condition:  &condition,
+		Value:      &value,
 	}
 }
