@@ -20,3 +20,11 @@ services:
       POSTGRES_DB: sulcud
       POSTGRES_USER: sulcud
       POSTGRES_PASSWORD: sulcud
+  redis:
+    networks:
+      - server
+    container_name: server-redis
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
