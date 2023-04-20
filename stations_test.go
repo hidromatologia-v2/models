@@ -458,3 +458,70 @@ func TestHistorical(t *testing.T) {
 		testHistorical(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
 	})
 }
+
+func testPushRegistry(t *testing.T, c *Controller) {
+	t.Run("Valid", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		sensorUUID := s.Sensors[0].UUID
+		// Check
+		// -- Time
+		from := time.Now()
+		{
+			registries := make([]tables.SensorRegistry, 0, 1000)
+			for i := 0; i < 1000; i++ {
+				registries = append(registries, tables.SensorRegistry{
+					SensorUUID: sensorUUID,
+					Value:      random.Float(10000.0),
+				})
+			}
+			assert.Nil(tt, c.PushRegistry(s, registries))
+		}
+		to := time.Now()
+		// Query
+		registries, hErr := c.Historical(&HistoricalFilter{
+			SensorUUID: sensorUUID,
+			From:       &from,
+			To:         &to,
+		})
+		assert.Nil(tt, hErr)
+		assert.NotNil(tt, registries)
+		assert.Len(tt, registries, 1000)
+	})
+	t.Run("Unauthorized", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		sensorUUID := s.Sensors[0].UUID
+		s2 := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s2).Error)
+		sensorUUID2 := s2.Sensors[0].UUID
+		// Check
+		registries := make([]tables.SensorRegistry, 0, 1000)
+		for i := 0; i < 1000; i++ {
+			registries = append(registries,
+				tables.SensorRegistry{
+					SensorUUID: sensorUUID,
+					Value:      random.Float(10000.0),
+				},
+				tables.SensorRegistry{
+					SensorUUID: sensorUUID2,
+					Value:      random.Float(10000.0),
+				},
+			)
+		}
+		assert.NotNil(tt, c.PushRegistry(s, registries))
+	})
+}
+
+func TestPushRegistry(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testPushRegistry(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testPushRegistry(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+	})
+}
