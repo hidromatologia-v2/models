@@ -128,6 +128,7 @@ func (c *Controller) UpdateStation(session *tables.User, station *tables.Station
 func (c *Controller) QueryStation(station *tables.Station) (*tables.Station, error) {
 	s := new(tables.Station)
 	qErr := c.DB.
+		Preload("Sensors").
 		Where("uuid = ?", station.UUID).
 		First(&s).Error
 	return s, qErr
@@ -167,6 +168,7 @@ func (c *Controller) QueryManyStation(filter *Filter[tables.Station]) (*Results[
 		PageSize: filter.PageSize,
 	}
 	query = query.
+		Preload("Sensors").
 		Order("uuid DESC").
 		Offset(filter.PageSize * (filter.Page - 1)).
 		Limit(filter.PageSize).
