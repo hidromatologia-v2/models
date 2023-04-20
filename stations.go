@@ -94,7 +94,7 @@ func (c *Controller) DeleteStation(session *tables.User, station *tables.Station
 	if dErr := query.Error; dErr != nil {
 		return dErr
 	}
-	if query.RowsAffected == 0 {
+	if query.RowsAffected != 1 {
 		return ErrUnauthorized
 	}
 	return nil
@@ -119,7 +119,7 @@ func (c *Controller) UpdateStation(session *tables.User, station *tables.Station
 	if err := query.Error; err != nil {
 		return err
 	}
-	if query.RowsAffected == 0 {
+	if query.RowsAffected != 1 {
 		return ErrUnauthorized
 	}
 	return nil

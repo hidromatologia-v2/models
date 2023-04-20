@@ -3,6 +3,7 @@ package models
 import (
 	"testing"
 
+	"github.com/hidromatologia-v2/models/common/cache"
 	"github.com/hidromatologia-v2/models/common/postgres"
 	"github.com/hidromatologia-v2/models/common/random"
 	"github.com/hidromatologia-v2/models/common/sqlite"
@@ -43,10 +44,10 @@ func testAuthenticate(t *testing.T, c *Controller) {
 
 func TestAuthenticate(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testAuthenticate(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		testAuthenticate(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testAuthenticate(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		testAuthenticate(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
 	})
 }
 
@@ -65,10 +66,10 @@ func testRegister(t *testing.T, c *Controller) {
 
 func TestRegister(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testRegister(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		testRegister(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testRegister(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		testRegister(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
 	})
 }
 
@@ -100,10 +101,10 @@ func testAuthorize(t *testing.T, c *Controller) {
 
 func TestAuthorize(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testAuthorize(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		testAuthorize(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testAuthorize(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		testAuthorize(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
 	})
 }
 
@@ -127,9 +128,9 @@ func testAuthorizeAPIKey(t *testing.T, c *Controller) {
 
 func TestAuthorizeAPIKey(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testAuthorizeAPIKey(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		testAuthorizeAPIKey(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testAuthorizeAPIKey(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		testAuthorizeAPIKey(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
 	})
 }

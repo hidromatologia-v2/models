@@ -3,6 +3,7 @@ package models
 import (
 	"testing"
 
+	"github.com/hidromatologia-v2/models/common/cache"
 	"github.com/hidromatologia-v2/models/common/postgres"
 	"github.com/hidromatologia-v2/models/common/random"
 	"github.com/hidromatologia-v2/models/common/sqlite"
@@ -24,10 +25,10 @@ func testCreateAlert(t *testing.T, c *Controller) {
 
 func TestCreateAlert(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testCreateAlert(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		testCreateAlert(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testCreateAlert(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		testCreateAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
 	})
 }
 
@@ -57,10 +58,10 @@ func testDeleteAlert(t *testing.T, c *Controller) {
 
 func TestDeleteAlert(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testDeleteAlert(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		testDeleteAlert(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testDeleteAlert(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		testDeleteAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
 	})
 }
 
@@ -145,10 +146,10 @@ func testUpdateAlert(t *testing.T, c *Controller) {
 
 func TestUpdateAlert(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testUpdateAlert(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		testUpdateAlert(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testUpdateAlert(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		testUpdateAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
 	})
 }
 
@@ -182,10 +183,10 @@ func testQueryOneAlert(t *testing.T, c *Controller) {
 
 func TestQueryOneAlert(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testQueryOneAlert(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		testQueryOneAlert(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testQueryOneAlert(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		testQueryOneAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
 	})
 }
 
@@ -263,9 +264,9 @@ func testQueryManyAlert(t *testing.T, c *Controller) {
 
 func TestQueryManyAlert(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testQueryManyAlert(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		testQueryManyAlert(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testQueryManyAlert(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		testQueryManyAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
 	})
 }

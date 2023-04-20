@@ -1,14 +1,16 @@
 package models
 
 import (
+	"github.com/hidromatologia-v2/models/common/cache"
 	"github.com/hidromatologia-v2/models/session"
 	"github.com/hidromatologia-v2/models/tables"
 	"gorm.io/gorm"
 )
 
 type Controller struct {
-	DB  *gorm.DB
-	JWT *session.JWT
+	DB    *gorm.DB
+	Cache cache.Cache
+	JWT   *session.JWT
 }
 
 func (c *Controller) Close() error {
@@ -19,10 +21,11 @@ func (c *Controller) Close() error {
 	return conn.Close()
 }
 
-func NewController(db *gorm.DB, secret []byte) *Controller {
+func NewController(db *gorm.DB, ch cache.Cache, secret []byte) *Controller {
 	c := &Controller{
-		DB:  db,
-		JWT: session.New(secret),
+		DB:    db,
+		Cache: ch,
+		JWT:   session.New(secret),
 	}
 	c.DB.AutoMigrate(
 		&tables.User{}, &tables.Station{}, &tables.Sensor{},

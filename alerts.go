@@ -27,7 +27,7 @@ func (c *Controller) DeleteAlert(session *tables.User, alert *tables.Alert) erro
 	if err := query.Error; err != nil {
 		return err
 	}
-	if query.RowsAffected == 0 {
+	if query.RowsAffected != 1 {
 		return ErrUnauthorized
 	}
 	return nil
@@ -50,7 +50,7 @@ func (c *Controller) UpdateAlert(session *tables.User, alert *tables.Alert) erro
 	if err := query.Error; err != nil {
 		return err
 	}
-	if query.RowsAffected == 0 {
+	if query.RowsAffected != 1 {
 		return ErrUnauthorized
 	}
 	return nil
