@@ -270,3 +270,101 @@ func TestQueryManyAlert(t *testing.T) {
 		testQueryManyAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
 	})
 }
+
+func testCheckAlert(t *testing.T, c *Controller) {
+	defer c.Close()
+	t.Run("Lt", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		ss := s.Sensors[0]
+		a := tables.RandomAlert(u, &ss)
+		a.Enabled = &tables.True
+		*a.Condition = tables.Lt
+		*a.Value = 10
+		assert.Nil(tt, c.DB.Create(a).Error)
+		users, err := c.CheckAlert(&tables.SensorRegistry{
+			SensorUUID: ss.UUID,
+			Value:      9,
+		})
+		assert.Nil(tt, err)
+		assert.Len(tt, users, 1)
+		var alert tables.Alert
+		assert.Nil(tt, c.DB.Where("uuid = ?", a.UUID).First(&alert).Error)
+		assert.False(tt, *alert.Enabled)
+
+	})
+	t.Run("Gt", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		ss := s.Sensors[0]
+		a := tables.RandomAlert(u, &ss)
+		a.Enabled = &tables.True
+		*a.Condition = tables.Gt
+		*a.Value = 10
+		assert.Nil(tt, c.DB.Create(a).Error)
+		users, err := c.CheckAlert(&tables.SensorRegistry{
+			SensorUUID: ss.UUID,
+			Value:      11,
+		})
+		assert.Nil(tt, err)
+		assert.Len(tt, users, 1)
+		var alert tables.Alert
+		assert.Nil(tt, c.DB.Where("uuid = ?", a.UUID).First(&alert).Error)
+		assert.False(tt, *alert.Enabled)
+	})
+	t.Run("Le", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		ss := s.Sensors[0]
+		a := tables.RandomAlert(u, &ss)
+		a.Enabled = &tables.True
+		*a.Condition = tables.Le
+		*a.Value = 10
+		assert.Nil(tt, c.DB.Create(a).Error)
+		users, err := c.CheckAlert(&tables.SensorRegistry{
+			SensorUUID: ss.UUID,
+			Value:      10,
+		})
+		assert.Nil(tt, err)
+		assert.Len(tt, users, 1)
+		var alert tables.Alert
+		assert.Nil(tt, c.DB.Where("uuid = ?", a.UUID).First(&alert).Error)
+		assert.False(tt, *alert.Enabled)
+	})
+	t.Run("Ge", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		ss := s.Sensors[0]
+		a := tables.RandomAlert(u, &ss)
+		a.Enabled = &tables.True
+		*a.Condition = tables.Ge
+		*a.Value = 10
+		assert.Nil(tt, c.DB.Create(a).Error)
+		users, err := c.CheckAlert(&tables.SensorRegistry{
+			SensorUUID: ss.UUID,
+			Value:      10,
+		})
+		assert.Nil(tt, err)
+		assert.Len(tt, users, 1)
+		var alert tables.Alert
+		assert.Nil(tt, c.DB.Where("uuid = ?", a.UUID).First(&alert).Error)
+		assert.False(tt, *alert.Enabled)
+	})
+}
+
+func TestCheckAlert(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		testCheckAlert(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		testCheckAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+	})
+}
