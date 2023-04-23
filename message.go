@@ -66,7 +66,7 @@ func (c *Controller) sendEmail(message *tables.Message) error {
 	m.Subject(message.Subject)
 	m.SetBodyString(mail.TypeTextPlain, message.Message)
 	client, err := mail.NewClient(
-		c.MailFrom,
+		c.MailHost,
 		c.MailOptions...,
 	)
 	if err != nil {
