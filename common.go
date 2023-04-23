@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hidromatologia-v2/models/common/cache"
+	"github.com/hidromatologia-v2/models/common/postgres"
+	"github.com/hidromatologia-v2/models/common/random"
+	"github.com/hidromatologia-v2/models/common/sqlite"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -27,3 +31,11 @@ type (
 		To         *time.Time `json:"to"`
 	}
 )
+
+func pgController() *Controller {
+	return NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+}
+
+func sqliteController() *Controller {
+	return NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+}

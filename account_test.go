@@ -4,10 +4,7 @@ import (
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
-	"github.com/hidromatologia-v2/models/common/cache"
-	"github.com/hidromatologia-v2/models/common/postgres"
 	"github.com/hidromatologia-v2/models/common/random"
-	"github.com/hidromatologia-v2/models/common/sqlite"
 	"github.com/hidromatologia-v2/models/tables"
 	"github.com/stretchr/testify/assert"
 )
@@ -33,12 +30,12 @@ func testQueryAccount(t *testing.T, c *Controller) {
 
 func TestQueryAccount(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		c := sqliteController()
 		defer c.Close()
 		testQueryAccount(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		c := pgController()
 		defer c.Close()
 		testQueryAccount(tt, c)
 	})
@@ -102,12 +99,12 @@ func testUpdateAccount(t *testing.T, c *Controller) {
 
 func TestUpdateAccount(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		c := sqliteController()
 		defer c.Close()
 		testUpdateAccount(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		c := pgController()
 		defer c.Close()
 		testUpdateAccount(tt, c)
 	})
@@ -137,12 +134,12 @@ func testRequestConfirmation(t *testing.T, c *Controller) {
 
 func TestRequestConfirmation(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		c := sqliteController()
 		defer c.Close()
 		testRequestConfirmation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		c := pgController()
 		defer c.Close()
 		testRequestConfirmation(tt, c)
 	})
@@ -169,12 +166,12 @@ func testConfirmAccount(t *testing.T, c *Controller) {
 
 func TestConfirmAccount(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		c := sqliteController()
 		defer c.Close()
 		testConfirmAccount(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		c := pgController()
 		defer c.Close()
 		testConfirmAccount(tt, c)
 	})
