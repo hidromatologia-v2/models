@@ -38,7 +38,9 @@ func TestQueryAccount(t *testing.T) {
 		testQueryAccount(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testQueryAccount(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testQueryAccount(tt, c)
 	})
 }
 
@@ -105,7 +107,9 @@ func TestUpdateAccount(t *testing.T) {
 		testUpdateAccount(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testUpdateAccount(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testUpdateAccount(tt, c)
 	})
 }
 
@@ -138,7 +142,9 @@ func TestRequestConfirmation(t *testing.T) {
 		testRequestConfirmation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testRequestConfirmation(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testRequestConfirmation(tt, c)
 	})
 }
 
@@ -168,6 +174,8 @@ func TestConfirmAccount(t *testing.T) {
 		testConfirmAccount(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testConfirmAccount(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testConfirmAccount(tt, c)
 	})
 }

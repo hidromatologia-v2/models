@@ -24,6 +24,8 @@ func TestController(t *testing.T) {
 		testController(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testController(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testController(tt, c)
 	})
 }

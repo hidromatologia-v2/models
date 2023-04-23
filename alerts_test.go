@@ -29,7 +29,9 @@ func TestCreateAlert(t *testing.T) {
 		testCreateAlert(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testCreateAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testCreateAlert(tt, c)
 	})
 }
 
@@ -63,7 +65,9 @@ func TestDeleteAlert(t *testing.T) {
 		testDeleteAlert(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testDeleteAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testDeleteAlert(tt, c)
 	})
 }
 
@@ -153,7 +157,9 @@ func TestUpdateAlert(t *testing.T) {
 		testUpdateAlert(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testUpdateAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testUpdateAlert(tt, c)
 	})
 }
 
@@ -192,7 +198,9 @@ func TestQueryOneAlert(t *testing.T) {
 		testQueryOneAlert(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testQueryOneAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testQueryOneAlert(tt, c)
 	})
 }
 
@@ -275,7 +283,9 @@ func TestQueryManyAlert(t *testing.T) {
 		testQueryManyAlert(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testQueryManyAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testQueryManyAlert(tt, c)
 	})
 }
 
@@ -375,6 +385,8 @@ func TestCheckAlert(t *testing.T) {
 		testCheckAlert(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testCheckAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testCheckAlert(tt, c)
 	})
 }

@@ -49,7 +49,9 @@ func TestAuthenticate(t *testing.T) {
 		testAuthenticate(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testAuthenticate(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testAuthenticate(tt, c)
 	})
 }
 
@@ -72,7 +74,9 @@ func TestRegister(t *testing.T) {
 		testRegister(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testRegister(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testRegister(tt, c)
 	})
 }
 
@@ -109,7 +113,9 @@ func TestAuthorize(t *testing.T) {
 		testAuthorize(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testAuthorize(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testAuthorize(tt, c)
 	})
 }
 
@@ -137,6 +143,8 @@ func TestAuthorizeAPIKey(t *testing.T) {
 		testAuthorizeAPIKey(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testAuthorizeAPIKey(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testAuthorizeAPIKey(tt, c)
 	})
 }

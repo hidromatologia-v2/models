@@ -41,7 +41,9 @@ func TestCreateStation(t *testing.T) {
 		testCreateStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testCreateStation(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testCreateStation(tt, c)
 	})
 }
 
@@ -93,7 +95,9 @@ func TestAddSensors(t *testing.T) {
 		testAddSensors(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testAddSensors(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testAddSensors(tt, c)
 	})
 }
 
@@ -144,7 +148,9 @@ func TestDeleteSensors(t *testing.T) {
 		testDeleteSensors(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testDeleteSensors(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testDeleteSensors(tt, c)
 	})
 }
 
@@ -175,7 +181,9 @@ func TestDeleteStation(t *testing.T) {
 		testDeleteStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testDeleteStation(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testDeleteStation(tt, c)
 	})
 }
 
@@ -230,7 +238,9 @@ func TestUpdateStation(t *testing.T) {
 		testUpdateStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testUpdateStation(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testUpdateStation(tt, c)
 	})
 }
 
@@ -254,7 +264,9 @@ func TestQueryStation(t *testing.T) {
 		testQueryStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testQueryStation(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testQueryStation(tt, c)
 	})
 }
 
@@ -394,7 +406,9 @@ func TestQueryManyStation(t *testing.T) {
 		testQueryManyStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testQueryManyStation(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testQueryManyStation(tt, c)
 	})
 }
 
@@ -471,7 +485,9 @@ func TestHistorical(t *testing.T) {
 		testHistorical(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testHistorical(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testHistorical(tt, c)
 	})
 }
 
@@ -540,6 +556,8 @@ func TestPushRegistry(t *testing.T) {
 		testPushRegistry(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testPushRegistry(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
+		c := NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+		defer c.Close()
+		testPushRegistry(tt, c)
 	})
 }
