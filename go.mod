@@ -15,6 +15,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.8.2
 	github.com/vonage/vonage-go-sdk v0.14.0
+	github.com/wneessen/go-mail v0.3.9
 	golang.org/x/crypto v0.8.0
 	golang.org/x/exp v0.0.0-20230420155640-133eef4313cb
 	gorm.io/driver/postgres v1.5.0

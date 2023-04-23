@@ -8,6 +8,7 @@ import (
 	"github.com/eko/gocache/lib/v4/store"
 	"github.com/hidromatologia-v2/models/tables"
 	"github.com/vonage/vonage-go-sdk"
+	"github.com/wneessen/go-mail"
 )
 
 const (
@@ -49,7 +50,32 @@ func (c *Controller) sendSMS(message *tables.Message) error {
 }
 
 func (c *Controller) sendEmail(message *tables.Message) error {
-	panic("Implement me!")
+	// Register message
+	iErr := c.DB.Create(message).Error
+	if iErr != nil {
+		return iErr
+	}
+	// -- Send the message
+	m := mail.NewMsg()
+	if err := m.From(c.MailFrom); err != nil {
+		return fmt.Errorf("failed to set From address: %w", err)
+	}
+	if err := m.To(message.Recipient); err != nil {
+		return fmt.Errorf("failed to set To address: %w", err)
+	}
+	m.Subject(message.Subject)
+	m.SetBodyString(mail.TypeTextPlain, message.Message)
+	client, err := mail.NewClient(
+		c.MailFrom,
+		c.MailOptions...,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to create mail client: %w", err)
+	}
+	if err := client.DialAndSend(m); err != nil {
+		return fmt.Errorf("failed to send mail: %w", err)
+	}
+	return nil
 }
 
 func (c *Controller) SendMessage(message *tables.Message) error {
