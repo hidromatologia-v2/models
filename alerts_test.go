@@ -12,7 +12,6 @@ import (
 )
 
 func testCreateAlert(t *testing.T, c *Controller) {
-	defer c.Close()
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -25,7 +24,9 @@ func testCreateAlert(t *testing.T, c *Controller) {
 
 func TestCreateAlert(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testCreateAlert(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testCreateAlert(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testCreateAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -33,7 +34,6 @@ func TestCreateAlert(t *testing.T) {
 }
 
 func testDeleteAlert(t *testing.T, c *Controller) {
-	defer c.Close()
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -58,7 +58,9 @@ func testDeleteAlert(t *testing.T, c *Controller) {
 
 func TestDeleteAlert(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testDeleteAlert(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testDeleteAlert(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testDeleteAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -66,7 +68,7 @@ func TestDeleteAlert(t *testing.T) {
 }
 
 func testUpdateAlert(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Name", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -146,7 +148,9 @@ func testUpdateAlert(t *testing.T, c *Controller) {
 
 func TestUpdateAlert(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testUpdateAlert(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testUpdateAlert(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testUpdateAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -154,7 +158,7 @@ func TestUpdateAlert(t *testing.T) {
 }
 
 func testQueryOneAlert(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -183,7 +187,9 @@ func testQueryOneAlert(t *testing.T, c *Controller) {
 
 func TestQueryOneAlert(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testQueryOneAlert(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testQueryOneAlert(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testQueryOneAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -191,7 +197,7 @@ func TestQueryOneAlert(t *testing.T) {
 }
 
 func testQueryManyAlert(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("NoFilter", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -264,7 +270,9 @@ func testQueryManyAlert(t *testing.T, c *Controller) {
 
 func TestQueryManyAlert(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testQueryManyAlert(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testQueryManyAlert(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testQueryManyAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -272,7 +280,7 @@ func TestQueryManyAlert(t *testing.T) {
 }
 
 func testCheckAlert(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Lt", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -362,7 +370,9 @@ func testCheckAlert(t *testing.T, c *Controller) {
 
 func TestCheckAlert(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testCheckAlert(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testCheckAlert(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testCheckAlert(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))

@@ -14,7 +14,7 @@ import (
 )
 
 func testCreateStation(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		u.Confirmed = new(bool)
@@ -36,7 +36,9 @@ func testCreateStation(t *testing.T, c *Controller) {
 
 func TestCreateStation(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testCreateStation(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testCreateStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testCreateStation(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -44,7 +46,7 @@ func TestCreateStation(t *testing.T) {
 }
 
 func testAddSensors(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -86,7 +88,9 @@ func testAddSensors(t *testing.T, c *Controller) {
 
 func TestAddSensors(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testAddSensors(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testAddSensors(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testAddSensors(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -94,7 +98,7 @@ func TestAddSensors(t *testing.T) {
 }
 
 func testDeleteSensors(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -135,7 +139,9 @@ func testDeleteSensors(t *testing.T, c *Controller) {
 
 func TestDeleteSensors(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testDeleteSensors(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testDeleteSensors(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testDeleteSensors(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -143,7 +149,7 @@ func TestDeleteSensors(t *testing.T) {
 }
 
 func testDeleteStation(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -164,7 +170,9 @@ func testDeleteStation(t *testing.T, c *Controller) {
 
 func TestDeleteStation(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testDeleteStation(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testDeleteStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testDeleteStation(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -172,7 +180,7 @@ func TestDeleteStation(t *testing.T) {
 }
 
 func testUpdateStation(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -217,7 +225,9 @@ func testUpdateStation(t *testing.T, c *Controller) {
 
 func TestUpdateStation(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testUpdateStation(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testUpdateStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testUpdateStation(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -225,7 +235,7 @@ func TestUpdateStation(t *testing.T) {
 }
 
 func testQueryStation(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -239,7 +249,9 @@ func testQueryStation(t *testing.T, c *Controller) {
 
 func TestQueryStation(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testQueryStation(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testQueryStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testQueryStation(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -247,7 +259,7 @@ func TestQueryStation(t *testing.T) {
 }
 
 func testQueryManyStation(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("NoFilter", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -377,7 +389,9 @@ func testQueryManyStation(t *testing.T, c *Controller) {
 
 func TestQueryManyStation(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testQueryManyStation(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testQueryManyStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testQueryManyStation(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -385,7 +399,7 @@ func TestQueryManyStation(t *testing.T) {
 }
 
 func testHistorical(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("All", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -452,7 +466,9 @@ func testHistorical(t *testing.T, c *Controller) {
 
 func TestHistorical(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testHistorical(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testHistorical(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testHistorical(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -519,7 +535,9 @@ func testPushRegistry(t *testing.T, c *Controller) {
 
 func TestPushRegistry(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testPushRegistry(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testPushRegistry(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testPushRegistry(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))

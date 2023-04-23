@@ -14,12 +14,14 @@ func testController(t *testing.T, c *Controller) {
 	defer func(tt *testing.T) {
 		assert.Nil(tt, c.Close())
 	}(t)
-	defer c.Close()
+
 }
 
 func TestController(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testController(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testController(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testController(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))

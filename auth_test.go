@@ -12,7 +12,7 @@ import (
 )
 
 func testAuthenticate(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -44,7 +44,9 @@ func testAuthenticate(t *testing.T, c *Controller) {
 
 func TestAuthenticate(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testAuthenticate(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testAuthenticate(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testAuthenticate(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -52,7 +54,6 @@ func TestAuthenticate(t *testing.T) {
 }
 
 func testRegister(t *testing.T, c *Controller) {
-	defer c.Close()
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.Register(u))
@@ -66,7 +67,9 @@ func testRegister(t *testing.T, c *Controller) {
 
 func TestRegister(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testRegister(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testRegister(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testRegister(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -74,7 +77,7 @@ func TestRegister(t *testing.T) {
 }
 
 func testAuthorize(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.Register(u))
@@ -101,7 +104,9 @@ func testAuthorize(t *testing.T, c *Controller) {
 
 func TestAuthorize(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testAuthorize(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testAuthorize(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testAuthorize(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
@@ -109,7 +114,6 @@ func TestAuthorize(t *testing.T) {
 }
 
 func testAuthorizeAPIKey(t *testing.T, c *Controller) {
-	defer c.Close()
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -128,7 +132,9 @@ func testAuthorizeAPIKey(t *testing.T, c *Controller) {
 
 func TestAuthorizeAPIKey(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testAuthorizeAPIKey(tt, NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String())))
+		c := NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+		defer c.Close()
+		testAuthorizeAPIKey(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		testAuthorizeAPIKey(tt, NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String())))
