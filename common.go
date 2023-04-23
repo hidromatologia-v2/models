@@ -33,9 +33,19 @@ type (
 )
 
 func pgController() *Controller {
-	return NewController(postgres.NewDefault(), cache.RedisDefault(), []byte(random.String()))
+	options := Options{
+		Database:  postgres.NewDefault(),
+		Cache:     cache.Bigcache(),
+		JWTSecret: []byte(random.String()),
+	}
+	return NewController(&options)
 }
 
 func sqliteController() *Controller {
-	return NewController(sqlite.NewMem(), cache.Bigcache(), []byte(random.String()))
+	options := Options{
+		Database:  sqlite.NewMem(),
+		Cache:     cache.Bigcache(),
+		JWTSecret: []byte(random.String()),
+	}
+	return NewController(&options)
 }
