@@ -4,7 +4,6 @@ import (
 	"github.com/hidromatologia-v2/models/common/cache"
 	"github.com/hidromatologia-v2/models/session"
 	"github.com/hidromatologia-v2/models/tables"
-	"github.com/vonage/vonage-go-sdk"
 	"github.com/wneessen/go-mail"
 	"gorm.io/gorm"
 )
@@ -13,7 +12,6 @@ type Controller struct {
 	DB          *gorm.DB
 	Cache       cache.Cache
 	JWT         *session.JWT
-	SMSClient   *vonage.SMSClient
 	MailHost    string
 	MailFrom    string
 	MailOptions []mail.Option
@@ -28,10 +26,6 @@ func (c *Controller) Close() error {
 }
 
 type (
-	VonageOptions struct {
-		Secret string
-		APIKey string
-	}
 	MailOptions struct {
 		Host    string
 		From    string
@@ -41,7 +35,6 @@ type (
 		Database  *gorm.DB
 		Cache     cache.Cache
 		JWTSecret []byte
-		Vonage    *VonageOptions
 		Mail      *MailOptions
 	}
 )
@@ -56,9 +49,6 @@ func NewController(options *Options) *Controller {
 	}
 	if options.JWTSecret != nil {
 		c.JWT = session.New(options.JWTSecret)
-	}
-	if options.Vonage != nil {
-		c.SMSClient = vonage.NewSMSClient(vonage.CreateAuthFromKeySecret(options.Vonage.APIKey, options.Vonage.Secret))
 	}
 	if options.Mail != nil {
 		c.MailHost = options.Mail.Host

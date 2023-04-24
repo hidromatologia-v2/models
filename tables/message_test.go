@@ -19,15 +19,6 @@ func testMessage(t *testing.T, db *gorm.DB) {
 		m.Recipient = "INVALID"
 		assert.NotNil(tt, db.Create(m).Error)
 	})
-	t.Run("Valid SMS", func(tt *testing.T) {
-		m := RandomMessage(SMS)
-		assert.Nil(tt, db.Create(m).Error)
-	})
-	t.Run("Invalid SMS", func(tt *testing.T) {
-		m := RandomMessage(SMS)
-		m.Recipient = "INVALID"
-		assert.NotNil(tt, db.Create(m).Error)
-	})
 	t.Run("Invalid TYPE", func(tt *testing.T) {
 		m := RandomMessage("INVALID")
 		m.Type = "INVALID"
