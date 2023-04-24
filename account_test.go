@@ -114,20 +114,18 @@ func testRequestConfirmation(t *testing.T, c *Controller) {
 	t.Run("Basic", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
-		emailCode, smsCode, rErr := c.RequestConfirmation(u)
+		emailCode, rErr := c.RequestConfirmation(u)
 		assert.Nil(tt, rErr)
-		var emailUser, smsUser tables.User
+		var emailUser tables.User
 		assert.Nil(tt, c.Cache.Get(emailCode, &emailUser))
-		assert.Nil(tt, c.Cache.Get(smsCode, &smsUser))
 		assert.Equal(tt, u.UUID, emailUser.UUID)
-		assert.Equal(tt, u.UUID, smsUser.UUID)
 	})
 	t.Run("Already Confirmed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		u.Confirmed = new(bool)
 		*u.Confirmed = true
 		assert.Nil(tt, c.DB.Create(u).Error)
-		_, _, rErr := c.RequestConfirmation(u)
+		_, rErr := c.RequestConfirmation(u)
 		assert.NotNil(tt, rErr)
 	})
 }
@@ -149,15 +147,13 @@ func testConfirmAccount(t *testing.T, c *Controller) {
 	t.Run("Basic", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
-		emailCode, smsCode, rErr := c.RequestConfirmation(u)
+		emailCode, rErr := c.RequestConfirmation(u)
 		assert.Nil(tt, rErr)
-		var emailUser, smsUser tables.User
+		var emailUser tables.User
 		assert.Nil(tt, c.Cache.Get(emailCode, &emailUser))
-		assert.Nil(tt, c.Cache.Get(smsCode, &smsUser))
 		assert.Equal(tt, u.UUID, emailUser.UUID)
-		assert.Equal(tt, u.UUID, smsUser.UUID)
 		// Confirm account
-		assert.Nil(tt, c.ConfirmAccount(emailCode, smsCode))
+		assert.Nil(tt, c.ConfirmAccount(emailCode))
 		var user tables.User
 		assert.Nil(tt, c.DB.Where("uuid = ?", u.UUID).First(&user).Error)
 		assert.True(tt, *user.Confirmed)

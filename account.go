@@ -60,46 +60,32 @@ func (c *Controller) UpdateAccount(session, details *tables.User, password strin
 	return nil
 }
 
-func (c *Controller) RequestConfirmation(session *tables.User) (string, string, error) {
+func (c *Controller) RequestConfirmation(session *tables.User) (string, error) {
 	var user tables.User
 	qErr := c.DB.Where("uuid = ?", session.UUID).Where("NOT confirmed").First(&user).Error
 	if qErr != nil {
 		if errors.Is(qErr, gorm.ErrRecordNotFound) {
-			return "", "", ErrUnauthorized
+			return "", ErrUnauthorized
 		}
-		return "", "", qErr
+		return "", qErr
 	}
 	emailCode := random.String()[:5]
-	smsCode := random.String()[:5]
 	sErr := c.Cache.Set(emailCode, user, store.WithExpiration(time.Hour))
 	if sErr != nil {
-		return "", "", sErr
+		return "", sErr
 	}
-	sErr = c.Cache.Set(smsCode, user, store.WithExpiration(time.Hour))
-	if sErr != nil {
-		c.Cache.Del(emailCode)
-		return "", "", sErr
-	}
-	return emailCode, smsCode, nil
+	return emailCode, nil
 }
 
-func (c *Controller) ConfirmAccount(emailCode, smsCode string) error {
+func (c *Controller) ConfirmAccount(emailCode string) error {
 	var (
-		emailUser, smsUser tables.User
+		emailUser tables.User
 	)
 	eErr := c.Cache.Get(emailCode, &emailUser)
 	if eErr != nil {
 		return eErr
 	}
-	eErr = c.Cache.Get(smsCode, &smsUser)
-	if eErr != nil {
-		return eErr
-	}
-	if emailUser.UUID != smsUser.UUID {
-		return ErrUnauthorized
-	}
 	go c.Cache.Del(emailCode)
-	go c.Cache.Del(smsCode)
 	var user tables.User
 	qErr := c.DB.Where("uuid = ?", emailUser.UUID).First(&user).Error
 	if qErr != nil {
