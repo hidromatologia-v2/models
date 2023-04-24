@@ -3,15 +3,13 @@ package models
 import (
 	"testing"
 
-	"github.com/hidromatologia-v2/models/common/postgres"
 	"github.com/hidromatologia-v2/models/common/random"
-	"github.com/hidromatologia-v2/models/common/sqlite"
 	"github.com/hidromatologia-v2/models/tables"
 	"github.com/stretchr/testify/assert"
 )
 
 func testAuthenticate(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -43,15 +41,18 @@ func testAuthenticate(t *testing.T, c *Controller) {
 
 func TestAuthenticate(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testAuthenticate(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testAuthenticate(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testAuthenticate(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testAuthenticate(tt, c)
 	})
 }
 
 func testRegister(t *testing.T, c *Controller) {
-	defer c.Close()
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.Register(u))
@@ -65,15 +66,19 @@ func testRegister(t *testing.T, c *Controller) {
 
 func TestRegister(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testRegister(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testRegister(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testRegister(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testRegister(tt, c)
 	})
 }
 
 func testAuthorize(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.Register(u))
@@ -100,15 +105,18 @@ func testAuthorize(t *testing.T, c *Controller) {
 
 func TestAuthorize(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testAuthorize(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testAuthorize(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testAuthorize(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testAuthorize(tt, c)
 	})
 }
 
 func testAuthorizeAPIKey(t *testing.T, c *Controller) {
-	defer c.Close()
 	t.Run("Succeed", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -127,9 +135,13 @@ func testAuthorizeAPIKey(t *testing.T, c *Controller) {
 
 func TestAuthorizeAPIKey(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testAuthorizeAPIKey(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testAuthorizeAPIKey(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testAuthorizeAPIKey(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testAuthorizeAPIKey(tt, c)
 	})
 }

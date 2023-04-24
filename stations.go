@@ -94,7 +94,7 @@ func (c *Controller) DeleteStation(session *tables.User, station *tables.Station
 	if dErr := query.Error; dErr != nil {
 		return dErr
 	}
-	if query.RowsAffected == 0 {
+	if query.RowsAffected != 1 {
 		return ErrUnauthorized
 	}
 	return nil
@@ -119,7 +119,7 @@ func (c *Controller) UpdateStation(session *tables.User, station *tables.Station
 	if err := query.Error; err != nil {
 		return err
 	}
-	if query.RowsAffected == 0 {
+	if query.RowsAffected != 1 {
 		return ErrUnauthorized
 	}
 	return nil
@@ -128,6 +128,7 @@ func (c *Controller) UpdateStation(session *tables.User, station *tables.Station
 func (c *Controller) QueryStation(station *tables.Station) (*tables.Station, error) {
 	s := new(tables.Station)
 	qErr := c.DB.
+		Preload("Sensors").
 		Where("uuid = ?", station.UUID).
 		First(&s).Error
 	return s, qErr
@@ -167,6 +168,7 @@ func (c *Controller) QueryManyStation(filter *Filter[tables.Station]) (*Results[
 		PageSize: filter.PageSize,
 	}
 	query = query.
+		Preload("Sensors").
 		Order("uuid DESC").
 		Offset(filter.PageSize * (filter.Page - 1)).
 		Limit(filter.PageSize).
@@ -192,4 +194,36 @@ func (c *Controller) Historical(filter *HistoricalFilter) ([]tables.SensorRegist
 	var results []tables.SensorRegistry
 	qErr := query.Find(&results).Error
 	return results, qErr
+}
+
+func (c *Controller) PushRegistry(session *tables.Station, registries []tables.SensorRegistry) error {
+	sensorsUUIDsMap := map[uuid.UUID]struct{}{}
+	sensorsUUIDs := make([]uuid.UUID, 0, 10)
+	for _, registry := range registries {
+		if _, ok := sensorsUUIDsMap[registry.SensorUUID]; ok {
+			continue
+		}
+		sensorsUUIDsMap[registry.SensorUUID] = struct{}{}
+		sensorsUUIDs = append(sensorsUUIDs, registry.SensorUUID)
+	}
+	var confirmedSensorsUUIDs int64
+	fErr := c.DB.
+		Model(&tables.Sensor{}).
+		Where("station_uuid = ?", session.UUID).
+		Where("uuid IN (?)", sensorsUUIDs).
+		Count(&confirmedSensorsUUIDs).Error
+	if fErr != nil {
+		return fErr
+	}
+	if confirmedSensorsUUIDs != int64(len(sensorsUUIDs)) {
+		return ErrUnauthorized
+	}
+	rc := make([]tables.SensorRegistry, 0, len(registries))
+	for _, registry := range registries {
+		rc = append(rc, tables.SensorRegistry{
+			SensorUUID: registry.SensorUUID,
+			Value:      registry.Value,
+		})
+	}
+	return c.DB.Create(rc).Error
 }

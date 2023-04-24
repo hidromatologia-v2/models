@@ -4,15 +4,13 @@ import (
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v6"
-	"github.com/hidromatologia-v2/models/common/postgres"
 	"github.com/hidromatologia-v2/models/common/random"
-	"github.com/hidromatologia-v2/models/common/sqlite"
 	"github.com/hidromatologia-v2/models/tables"
 	"github.com/stretchr/testify/assert"
 )
 
 func testQueryAccount(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -32,15 +30,18 @@ func testQueryAccount(t *testing.T, c *Controller) {
 
 func TestQueryAccount(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testQueryAccount(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testQueryAccount(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testQueryAccount(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testQueryAccount(tt, c)
 	})
 }
 
 func testUpdateAccount(t *testing.T, c *Controller) {
-	defer c.Close()
 	t.Run("Basic", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -98,9 +99,80 @@ func testUpdateAccount(t *testing.T, c *Controller) {
 
 func TestUpdateAccount(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testUpdateAccount(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testUpdateAccount(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testUpdateAccount(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testUpdateAccount(tt, c)
+	})
+}
+
+func testRequestConfirmation(t *testing.T, c *Controller) {
+	t.Run("Basic", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		emailCode, smsCode, rErr := c.RequestConfirmation(u)
+		assert.Nil(tt, rErr)
+		var emailUser, smsUser tables.User
+		assert.Nil(tt, c.Cache.Get(emailCode, &emailUser))
+		assert.Nil(tt, c.Cache.Get(smsCode, &smsUser))
+		assert.Equal(tt, u.UUID, emailUser.UUID)
+		assert.Equal(tt, u.UUID, smsUser.UUID)
+	})
+	t.Run("Already Confirmed", func(tt *testing.T) {
+		u := tables.RandomUser()
+		u.Confirmed = new(bool)
+		*u.Confirmed = true
+		assert.Nil(tt, c.DB.Create(u).Error)
+		_, _, rErr := c.RequestConfirmation(u)
+		assert.NotNil(tt, rErr)
+	})
+}
+
+func TestRequestConfirmation(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		c := sqliteController()
+		defer c.Close()
+		testRequestConfirmation(tt, c)
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		c := pgController()
+		defer c.Close()
+		testRequestConfirmation(tt, c)
+	})
+}
+
+func testConfirmAccount(t *testing.T, c *Controller) {
+	t.Run("Basic", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		emailCode, smsCode, rErr := c.RequestConfirmation(u)
+		assert.Nil(tt, rErr)
+		var emailUser, smsUser tables.User
+		assert.Nil(tt, c.Cache.Get(emailCode, &emailUser))
+		assert.Nil(tt, c.Cache.Get(smsCode, &smsUser))
+		assert.Equal(tt, u.UUID, emailUser.UUID)
+		assert.Equal(tt, u.UUID, smsUser.UUID)
+		// Confirm account
+		assert.Nil(tt, c.ConfirmAccount(emailCode, smsCode))
+		var user tables.User
+		assert.Nil(tt, c.DB.Where("uuid = ?", u.UUID).First(&user).Error)
+		assert.True(tt, *user.Confirmed)
+	})
+}
+
+func TestConfirmAccount(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		c := sqliteController()
+		defer c.Close()
+		testConfirmAccount(tt, c)
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		c := pgController()
+		defer c.Close()
+		testConfirmAccount(tt, c)
 	})
 }

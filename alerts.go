@@ -27,7 +27,7 @@ func (c *Controller) DeleteAlert(session *tables.User, alert *tables.Alert) erro
 	if err := query.Error; err != nil {
 		return err
 	}
-	if query.RowsAffected == 0 {
+	if query.RowsAffected != 1 {
 		return ErrUnauthorized
 	}
 	return nil
@@ -50,7 +50,7 @@ func (c *Controller) UpdateAlert(session *tables.User, alert *tables.Alert) erro
 	if err := query.Error; err != nil {
 		return err
 	}
-	if query.RowsAffected == 0 {
+	if query.RowsAffected != 1 {
 		return ErrUnauthorized
 	}
 	return nil
@@ -112,4 +112,34 @@ func (c *Controller) QueryManyAlert(session *tables.User, filter *Filter[tables.
 	}
 	result.Count = len(result.Entries)
 	return result, nil
+}
+
+func (c *Controller) CheckAlert(registry *tables.SensorRegistry) ([]tables.Alert, error) {
+	var alerts []tables.Alert
+	aErr := c.DB.
+		Preload("User").
+		Where(`
+		(
+			enabled = true AND sensor_uuid = ?
+		) AND
+		(
+			(condition = ? AND ? <  value) OR
+			(condition = ? AND ? >  value) OR
+			(condition = ? AND ? <= value) OR
+			(condition = ? AND ? >= value)
+		)
+		`,
+			registry.SensorUUID,
+			tables.Lt, registry.Value,
+			tables.Gt, registry.Value,
+			tables.Le, registry.Value,
+			tables.Ge, registry.Value,
+		).
+		Find(&alerts).
+		Update("enabled", false).
+		Error
+	if aErr != nil {
+		return nil, aErr
+	}
+	return alerts, nil
 }

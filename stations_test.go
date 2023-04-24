@@ -5,15 +5,13 @@ import (
 	"time"
 
 	"github.com/biter777/countries"
-	"github.com/hidromatologia-v2/models/common/postgres"
 	"github.com/hidromatologia-v2/models/common/random"
-	"github.com/hidromatologia-v2/models/common/sqlite"
 	"github.com/hidromatologia-v2/models/tables"
 	"github.com/stretchr/testify/assert"
 )
 
 func testCreateStation(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		u.Confirmed = new(bool)
@@ -35,15 +33,19 @@ func testCreateStation(t *testing.T, c *Controller) {
 
 func TestCreateStation(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testCreateStation(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testCreateStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testCreateStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testCreateStation(tt, c)
 	})
 }
 
 func testAddSensors(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -85,15 +87,19 @@ func testAddSensors(t *testing.T, c *Controller) {
 
 func TestAddSensors(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testAddSensors(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testAddSensors(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testAddSensors(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testAddSensors(tt, c)
 	})
 }
 
 func testDeleteSensors(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -134,15 +140,19 @@ func testDeleteSensors(t *testing.T, c *Controller) {
 
 func TestDeleteSensors(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testDeleteSensors(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testDeleteSensors(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testDeleteSensors(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testDeleteSensors(tt, c)
 	})
 }
 
 func testDeleteStation(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -163,15 +173,19 @@ func testDeleteStation(t *testing.T, c *Controller) {
 
 func TestDeleteStation(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testDeleteStation(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testDeleteStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testDeleteStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testDeleteStation(tt, c)
 	})
 }
 
 func testUpdateStation(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -216,15 +230,19 @@ func testUpdateStation(t *testing.T, c *Controller) {
 
 func TestUpdateStation(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testUpdateStation(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testUpdateStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testUpdateStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testUpdateStation(tt, c)
 	})
 }
 
 func testQueryStation(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -238,15 +256,19 @@ func testQueryStation(t *testing.T, c *Controller) {
 
 func TestQueryStation(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testQueryStation(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testQueryStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testQueryStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testQueryStation(tt, c)
 	})
 }
 
 func testQueryManyStation(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("NoFilter", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -376,15 +398,19 @@ func testQueryManyStation(t *testing.T, c *Controller) {
 
 func TestQueryManyStation(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testQueryManyStation(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testQueryManyStation(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testQueryManyStation(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testQueryManyStation(tt, c)
 	})
 }
 
 func testHistorical(t *testing.T, c *Controller) {
-	defer c.Close()
+
 	t.Run("All", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
@@ -451,9 +477,84 @@ func testHistorical(t *testing.T, c *Controller) {
 
 func TestHistorical(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
-		testHistorical(tt, NewController(sqlite.NewMem(), []byte(random.String())))
+		c := sqliteController()
+		defer c.Close()
+		testHistorical(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
-		testHistorical(tt, NewController(postgres.NewDefault(), []byte(random.String())))
+		c := pgController()
+		defer c.Close()
+		testHistorical(tt, c)
+	})
+}
+
+func testPushRegistry(t *testing.T, c *Controller) {
+	t.Run("Valid", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		sensorUUID := s.Sensors[0].UUID
+		// Check
+		// -- Time
+		from := time.Now()
+		{
+			registries := make([]tables.SensorRegistry, 0, 1000)
+			for i := 0; i < 1000; i++ {
+				registries = append(registries, tables.SensorRegistry{
+					SensorUUID: sensorUUID,
+					Value:      random.Float(10000.0),
+				})
+			}
+			assert.Nil(tt, c.PushRegistry(s, registries))
+		}
+		to := time.Now()
+		// Query
+		registries, hErr := c.Historical(&HistoricalFilter{
+			SensorUUID: sensorUUID,
+			From:       &from,
+			To:         &to,
+		})
+		assert.Nil(tt, hErr)
+		assert.NotNil(tt, registries)
+		assert.Len(tt, registries, 1000)
+	})
+	t.Run("Unauthorized", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		sensorUUID := s.Sensors[0].UUID
+		s2 := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s2).Error)
+		sensorUUID2 := s2.Sensors[0].UUID
+		// Check
+		registries := make([]tables.SensorRegistry, 0, 1000)
+		for i := 0; i < 1000; i++ {
+			registries = append(registries,
+				tables.SensorRegistry{
+					SensorUUID: sensorUUID,
+					Value:      random.Float(10000.0),
+				},
+				tables.SensorRegistry{
+					SensorUUID: sensorUUID2,
+					Value:      random.Float(10000.0),
+				},
+			)
+		}
+		assert.NotNil(tt, c.PushRegistry(s, registries))
+	})
+}
+
+func TestPushRegistry(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		c := sqliteController()
+		defer c.Close()
+		testPushRegistry(tt, c)
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		c := pgController()
+		defer c.Close()
+		testPushRegistry(tt, c)
 	})
 }
