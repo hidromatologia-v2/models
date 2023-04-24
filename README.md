@@ -7,6 +7,15 @@ This repository contains the main functionalities used in all the microservices 
 
 Designed in a way to maintain centralized the database models and controllers.
 
+## Usage
+
+### Installing
+
+```shell
+export GOPRIVATE="github.com/hidromatologia-v2" && \
+go get -u github.com/hidromatologia-v2/models
+```
+
 ## Development
 
 Make sure you have the environment setup.
