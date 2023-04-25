@@ -12,7 +12,6 @@ Designed in a way to maintain centralized the database models and controllers.
 ### Installing
 
 ```shell
-export GOPRIVATE="github.com/hidromatologia-v2" && \
 go get -u github.com/hidromatologia-v2/models
 ```
 
