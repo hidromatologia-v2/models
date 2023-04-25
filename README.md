@@ -2,6 +2,8 @@
 
 [![Build](https://github.com/hidromatologia-v2/models/actions/workflows/build.yaml/badge.svg)](https://github.com/hidromatologia-v2/models/actions/workflows/build.yaml)
 [![codecov](https://codecov.io/gh/hidromatologia-v2/models/branch/main/graph/badge.svg?token=CNV9IFQG8O)](https://codecov.io/gh/hidromatologia-v2/models)
+[![Go Report Card](https://goreportcard.com/badge/github.com/hidromatologia-v2/models)](https://goreportcard.com/report/github.com/hidromatologia-v2/models)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/hidromatologia-v2/models)
 
 This repository contains the main functionalities used in all the microservices present in the project.
 
