@@ -10,3 +10,9 @@ func LogOnError(err error) {
 		log.Print(err)
 	}
 }
+
+func PanicOnError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
