@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.9](https://github.com/hidromatologia-v2/models/compare/v0.0.8...v0.0.9) (2023-04-26)
+
+
+### Features
+
+* added default controller creation ([957607e](https://github.com/hidromatologia-v2/models/commit/957607efc954584f9af5097c213d65d065c83148))
+* Config environment variables struct ([5fdbf09](https://github.com/hidromatologia-v2/models/commit/5fdbf09d671442f5997f941be886cc23b95c40c7))
+
+
+### Bug Fixes
+
+* added memphis container to docker setup ([d07d423](https://github.com/hidromatologia-v2/models/commit/d07d423374c23d481541047b12fb95e14f625780))
+
 ### 0.0.8 (2023-04-25)
 
 ### 0.0.7 (2023-04-24)
