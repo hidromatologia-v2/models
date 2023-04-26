@@ -3,6 +3,7 @@ package connection
 import (
 	"testing"
 
+	"github.com/hidromatologia-v2/models/common/random"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,6 +21,18 @@ func TestDefaultConsumer(t *testing.T) {
 
 func TestDefaultProducer(t *testing.T) {
 	c := DefaultProducer(t)
+	assert.NotNil(t, c)
+	defer c.Destroy()
+}
+
+func TestNewConsumer(t *testing.T) {
+	c := NewConsumer(t, random.String())
+	assert.NotNil(t, c)
+	defer c.Destroy()
+}
+
+func TestNewProducer(t *testing.T) {
+	c := NewProducer(t, random.String())
 	assert.NotNil(t, c)
 	defer c.Destroy()
 }
