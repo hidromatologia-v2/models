@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.11 (2023-04-26)
+
+
+### Features
+
+* added logging method ([c5e67b2](https://github.com/hidromatologia-v2/models/commit/c5e67b2e1065803ced7e9bea794f09e9970a6389))
+
 ### 0.0.10 (2023-04-26)
 
 ### [0.0.9](https://github.com/hidromatologia-v2/models/compare/v0.0.8...v0.0.9) (2023-04-26)
