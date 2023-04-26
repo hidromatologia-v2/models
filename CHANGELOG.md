@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.13 (2023-04-26)
+
+
+### Features
+
+* added new function to quickly create consumers and producers ([03edb5e](https://github.com/hidromatologia-v2/models/commit/03edb5ea23ddecde9432653265795a7689ceacfe))
+
 ### 0.0.12 (2023-04-26)
 
 
