@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.12 (2023-04-26)
+
+
+### Features
+
+* panic on error log feature ([508ea9a](https://github.com/hidromatologia-v2/models/commit/508ea9a604901215a16705095d8941be5620428a))
+
 ### 0.0.11 (2023-04-26)
 
 
