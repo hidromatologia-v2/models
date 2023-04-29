@@ -6,6 +6,7 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/hidromatologia-v2/models/common/random"
 	"github.com/hidromatologia-v2/models/tables"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -117,7 +118,7 @@ func testRequestConfirmation(t *testing.T, c *Controller) {
 		emailCode, rErr := c.RequestConfirmation(u)
 		assert.Nil(tt, rErr)
 		var emailUser tables.User
-		assert.Nil(tt, c.Cache.Get(emailCode, &emailUser))
+		assert.Nil(tt, c.EmailCache.Get(emailCode, &emailUser))
 		assert.Equal(tt, u.UUID, emailUser.UUID)
 	})
 	t.Run("Already Confirmed", func(tt *testing.T) {
@@ -150,7 +151,7 @@ func testConfirmAccount(t *testing.T, c *Controller) {
 		emailCode, rErr := c.RequestConfirmation(u)
 		assert.Nil(tt, rErr)
 		var emailUser tables.User
-		assert.Nil(tt, c.Cache.Get(emailCode, &emailUser))
+		assert.Nil(tt, c.EmailCache.Get(emailCode, &emailUser))
 		assert.Equal(tt, u.UUID, emailUser.UUID)
 		// Confirm account
 		assert.Nil(tt, c.ConfirmAccount(emailCode))
@@ -170,5 +171,108 @@ func TestConfirmAccount(t *testing.T) {
 		c := pgController()
 		defer c.Close()
 		testConfirmAccount(tt, c)
+	})
+}
+
+func testUpdatePassword(t *testing.T, c *Controller) {
+	t.Run("Basic", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		newPassword := random.String()[:12]
+		assert.Nil(tt, c.UpdatePassword(u, u.Password, newPassword))
+		session, authErr := c.Authenticate(&tables.User{Username: u.Username, Password: newPassword})
+		assert.Nil(tt, authErr)
+		assert.Equal(tt, u.UUID, session.UUID)
+	})
+	t.Run("Unauthorized No User With ID", func(tt *testing.T) {
+		u := tables.RandomUser()
+		u.UUID = uuid.NewV4()
+		newPassword := random.String()[:12]
+		assert.NotNil(tt, c.UpdatePassword(u, "INVALID", newPassword))
+		_, authErr := c.Authenticate(&tables.User{Username: u.Username, Password: newPassword})
+		assert.NotNil(tt, authErr)
+	})
+	t.Run("Unauthorized Invalid Password", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		newPassword := random.String()[:12]
+		assert.NotNil(tt, c.UpdatePassword(u, "INVALID", newPassword))
+		_, authErr := c.Authenticate(&tables.User{Username: u.Username, Password: newPassword})
+		assert.NotNil(tt, authErr)
+	})
+}
+
+func TestUpdatePassword(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		c := sqliteController()
+		defer c.Close()
+		testUpdatePassword(tt, c)
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		c := pgController()
+		defer c.Close()
+		testUpdatePassword(tt, c)
+	})
+}
+
+func testRequestResetPassword(t *testing.T, c *Controller) {
+	t.Run("Basic", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		resetCode, reqErr := c.RequestResetPassword(u)
+		assert.Nil(tt, reqErr)
+		var user tables.User
+		assert.Nil(tt, c.PasswordCache.Get(resetCode, &user))
+		assert.Equal(tt, u.UUID, user.UUID)
+		assert.Nil(tt, c.PasswordCache.Del(resetCode))
+	})
+	t.Run("Unauthorized", func(tt *testing.T) {
+		u := tables.RandomUser()
+		_, reqErr := c.RequestResetPassword(u)
+		assert.NotNil(tt, reqErr)
+	})
+}
+
+func TestRequestResetPassword(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		c := sqliteController()
+		defer c.Close()
+		testRequestResetPassword(tt, c)
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		c := pgController()
+		defer c.Close()
+		testRequestResetPassword(tt, c)
+	})
+}
+
+func testResetPassword(t *testing.T, c *Controller) {
+	t.Run("Valid code", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		resetCode, reqErr := c.RequestResetPassword(u)
+		assert.Nil(tt, reqErr)
+		newPassword := random.String()[:12]
+		assert.Nil(tt, c.ResetPassword(resetCode, newPassword))
+		user, authErr := c.Authenticate(&tables.User{Username: u.Username, Password: newPassword})
+		assert.Nil(tt, authErr)
+		assert.Equal(tt, u.UUID, user.UUID)
+	})
+	t.Run("Invalid code", func(tt *testing.T) {
+		newPassword := random.String()[:12]
+		assert.NotNil(tt, c.ResetPassword("INVALID", newPassword))
+	})
+}
+
+func TestResetPassword(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		c := sqliteController()
+		defer c.Close()
+		testResetPassword(tt, c)
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		c := pgController()
+		defer c.Close()
+		testResetPassword(tt, c)
 	})
 }

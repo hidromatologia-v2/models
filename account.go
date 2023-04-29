@@ -70,7 +70,7 @@ func (c *Controller) RequestConfirmation(session *tables.User) (string, error) {
 		return "", qErr
 	}
 	emailCode := random.String()[:5]
-	sErr := c.Cache.Set(emailCode, user, store.WithExpiration(time.Hour))
+	sErr := c.EmailCache.Set(emailCode, user, store.WithExpiration(time.Hour))
 	if sErr != nil {
 		return "", sErr
 	}
@@ -81,11 +81,11 @@ func (c *Controller) ConfirmAccount(emailCode string) error {
 	var (
 		emailUser tables.User
 	)
-	eErr := c.Cache.Get(emailCode, &emailUser)
+	eErr := c.EmailCache.Get(emailCode, &emailUser)
 	if eErr != nil {
 		return eErr
 	}
-	go c.Cache.Del(emailCode)
+	go c.EmailCache.Del(emailCode)
 	var user tables.User
 	qErr := c.DB.Where("uuid = ?", emailUser.UUID).First(&user).Error
 	if qErr != nil {
@@ -108,4 +108,60 @@ func (c *Controller) ConfirmAccount(emailCode string) error {
 		return ErrUnauthorized
 	}
 	return nil
+}
+
+func (c *Controller) UpdatePassword(session *tables.User, currentPassword, newPassword string) error {
+	var user tables.User
+	qErr := c.DB.
+		Where("uuid = ?", session.UUID).
+		First(&user).
+		Error
+	if qErr != nil {
+		if errors.Is(qErr, gorm.ErrRecordNotFound) {
+			return ErrUnauthorized
+		}
+		return qErr
+	}
+	if !user.Authenticate(currentPassword) {
+		return ErrUnauthorized
+	}
+	uErr := c.DB.
+		Where("uuid = ?", user.UUID).
+		Updates(&tables.User{
+			Model:    user.Model,
+			Password: newPassword,
+		}).Error
+	return uErr
+}
+
+func (c *Controller) RequestResetPassword(account *tables.User) (string, error) {
+	var user tables.User
+	qErr := c.DB.
+		Where("email = ?", account.Email).
+		First(&user).
+		Error
+	if qErr != nil {
+		if errors.Is(qErr, gorm.ErrRecordNotFound) {
+			return "", ErrUnauthorized
+		}
+		return "", qErr
+	}
+	resetCode := random.String()[:5]
+	sErr := c.PasswordCache.Set(resetCode, user, store.WithExpiration(time.Hour))
+	return resetCode, sErr
+}
+
+func (c *Controller) ResetPassword(resetCode string, newPassword string) error {
+	var user tables.User
+	err := c.PasswordCache.Get(resetCode, &user)
+	if err != nil {
+		return err
+	}
+	qErr := c.DB.
+		Where("uuid = ?", user.UUID).
+		Updates(&tables.User{
+			Model:    user.Model,
+			Password: newPassword,
+		}).Error
+	return qErr
 }

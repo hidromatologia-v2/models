@@ -241,29 +241,67 @@ func TestUpdateStation(t *testing.T) {
 	})
 }
 
-func testQueryStation(t *testing.T, c *Controller) {
+func testQueryStationNoAPIKey(t *testing.T, c *Controller) {
 
 	t.Run("Valid", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)
 		s := tables.RandomStation(u)
 		assert.Nil(tt, c.DB.Create(s).Error)
-		station, qErr := c.QueryStation(s)
+		station, qErr := c.QueryStationNoAPIKey(s)
 		assert.Nil(tt, qErr)
 		assert.Equal(tt, s.UUID, station.UUID)
+		assert.Nil(tt, s.APIKeyJSON)
 	})
 }
 
-func TestQueryStation(t *testing.T) {
+func TestQueryStationNoAPIKey(t *testing.T) {
 	t.Run("SQLite", func(tt *testing.T) {
 		c := sqliteController()
 		defer c.Close()
-		testQueryStation(tt, c)
+		testQueryStationNoAPIKey(tt, c)
 	})
 	t.Run("PostgreSQL", func(tt *testing.T) {
 		c := pgController()
 		defer c.Close()
-		testQueryStation(tt, c)
+		testQueryStationNoAPIKey(tt, c)
+	})
+}
+
+func testQueryStationAPIKey(t *testing.T, c *Controller) {
+	t.Run("Valid", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		station, qErr := c.QueryStationAPIKey(u, s)
+		assert.Nil(tt, qErr)
+		assert.Equal(tt, s.UUID, station.UUID)
+		assert.NotNil(tt, station.APIKeyJSON)
+		assert.Equal(tt, s.APIKey, *station.APIKeyJSON)
+	})
+	t.Run("Unauthorized", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		u2 := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u2).Error)
+		_, qErr := c.QueryStationAPIKey(u2, s)
+		assert.NotNil(tt, qErr)
+	})
+}
+
+func TestQueryStationAPIKey(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		c := sqliteController()
+		defer c.Close()
+		testQueryStationAPIKey(tt, c)
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		c := pgController()
+		defer c.Close()
+		testQueryStationAPIKey(tt, c)
 	})
 }
 
