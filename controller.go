@@ -9,12 +9,13 @@ import (
 )
 
 type Controller struct {
-	DB          *gorm.DB
-	Cache       cache.Cache
-	JWT         *session.JWT
-	MailHost    string
-	MailFrom    string
-	MailOptions []mail.Option
+	DB            *gorm.DB
+	EmailCache    cache.Cache
+	PasswordCache cache.Cache
+	JWT           *session.JWT
+	MailHost      string
+	MailFrom      string
+	MailOptions   []mail.Option
 }
 
 func (c *Controller) Close() error {
@@ -32,10 +33,11 @@ type (
 		Options []mail.Option
 	}
 	Options struct {
-		Database  *gorm.DB
-		Cache     cache.Cache
-		JWTSecret []byte
-		Mail      *MailOptions
+		Database      *gorm.DB
+		EmailCache    cache.Cache
+		PasswordCache cache.Cache
+		JWTSecret     []byte
+		Mail          *MailOptions
 	}
 )
 
@@ -44,8 +46,11 @@ func NewController(options *Options) *Controller {
 	if options.Database != nil {
 		c.DB = options.Database
 	}
-	if options.Cache != nil {
-		c.Cache = options.Cache
+	if options.EmailCache != nil {
+		c.EmailCache = options.EmailCache
+	}
+	if options.PasswordCache != nil {
+		c.PasswordCache = options.PasswordCache
 	}
 	if options.JWTSecret != nil {
 		c.JWT = session.New(options.JWTSecret)

@@ -8,15 +8,17 @@ import (
 	"github.com/hidromatologia-v2/models/common/postgres"
 	"github.com/hidromatologia-v2/models/common/random"
 	"github.com/memphisdev/memphis.go"
+	redis_v9 "github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"github.com/wneessen/go-mail"
 )
 
 func PostgresController() *models.Controller {
 	opts := models.Options{
-		Database:  postgres.NewDefault(),
-		Cache:     cache.RedisDefault(),
-		JWTSecret: []byte(random.String()),
+		Database:      postgres.NewDefault(),
+		EmailCache:    cache.Redis(&redis_v9.Options{Addr: "127.0.0.1:6379", DB: 1}),
+		PasswordCache: cache.Redis(&redis_v9.Options{Addr: "127.0.0.1:6379", DB: 2}),
+		JWTSecret:     []byte(random.String()),
 		Mail: &models.MailOptions{
 			From: "sulcud@mail.com",
 			Host: "127.0.0.1",

@@ -118,7 +118,7 @@ func testRequestConfirmation(t *testing.T, c *Controller) {
 		emailCode, rErr := c.RequestConfirmation(u)
 		assert.Nil(tt, rErr)
 		var emailUser tables.User
-		assert.Nil(tt, c.Cache.Get(emailCode, &emailUser))
+		assert.Nil(tt, c.EmailCache.Get(emailCode, &emailUser))
 		assert.Equal(tt, u.UUID, emailUser.UUID)
 	})
 	t.Run("Already Confirmed", func(tt *testing.T) {
@@ -151,7 +151,7 @@ func testConfirmAccount(t *testing.T, c *Controller) {
 		emailCode, rErr := c.RequestConfirmation(u)
 		assert.Nil(tt, rErr)
 		var emailUser tables.User
-		assert.Nil(tt, c.Cache.Get(emailCode, &emailUser))
+		assert.Nil(tt, c.EmailCache.Get(emailCode, &emailUser))
 		assert.Equal(tt, u.UUID, emailUser.UUID)
 		// Confirm account
 		assert.Nil(tt, c.ConfirmAccount(emailCode))
@@ -212,5 +212,36 @@ func TestUpdatePassword(t *testing.T) {
 		c := pgController()
 		defer c.Close()
 		testUpdatePassword(tt, c)
+	})
+}
+
+func testRequestResetPassword(t *testing.T, c *Controller) {
+	t.Run("Basic", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		resetCode, reqErr := c.RequestResetPassword(u)
+		assert.Nil(tt, reqErr)
+		var user tables.User
+		assert.Nil(tt, c.PasswordCache.Get(resetCode, &user))
+		assert.Equal(tt, u.UUID, user.UUID)
+		assert.Nil(tt, c.PasswordCache.Del(resetCode))
+	})
+	t.Run("Unauthorized", func(tt *testing.T) {
+		u := tables.RandomUser()
+		_, reqErr := c.RequestResetPassword(u)
+		assert.NotNil(tt, reqErr)
+	})
+}
+
+func TestRequestResetPassword(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		c := sqliteController()
+		defer c.Close()
+		testRequestResetPassword(tt, c)
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		c := pgController()
+		defer c.Close()
+		testRequestResetPassword(tt, c)
 	})
 }
