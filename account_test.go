@@ -6,6 +6,7 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/hidromatologia-v2/models/common/random"
 	"github.com/hidromatologia-v2/models/tables"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -170,5 +171,46 @@ func TestConfirmAccount(t *testing.T) {
 		c := pgController()
 		defer c.Close()
 		testConfirmAccount(tt, c)
+	})
+}
+
+func testUpdatePassword(t *testing.T, c *Controller) {
+	t.Run("Basic", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		newPassword := random.String()[:12]
+		assert.Nil(tt, c.UpdatePassword(u, u.Password, newPassword))
+		session, authErr := c.Authenticate(&tables.User{Username: u.Username, Password: newPassword})
+		assert.Nil(tt, authErr)
+		assert.Equal(tt, u.UUID, session.UUID)
+	})
+	t.Run("Unauthorized No User With ID", func(tt *testing.T) {
+		u := tables.RandomUser()
+		u.UUID = uuid.NewV4()
+		newPassword := random.String()[:12]
+		assert.NotNil(tt, c.UpdatePassword(u, "INVALID", newPassword))
+		_, authErr := c.Authenticate(&tables.User{Username: u.Username, Password: newPassword})
+		assert.NotNil(tt, authErr)
+	})
+	t.Run("Unauthorized Invalid Password", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		newPassword := random.String()[:12]
+		assert.NotNil(tt, c.UpdatePassword(u, "INVALID", newPassword))
+		_, authErr := c.Authenticate(&tables.User{Username: u.Username, Password: newPassword})
+		assert.NotNil(tt, authErr)
+	})
+}
+
+func TestUpdatePassword(t *testing.T) {
+	t.Run("SQLite", func(tt *testing.T) {
+		c := sqliteController()
+		defer c.Close()
+		testUpdatePassword(tt, c)
+	})
+	t.Run("PostgreSQL", func(tt *testing.T) {
+		c := pgController()
+		defer c.Close()
+		testUpdatePassword(tt, c)
 	})
 }

@@ -109,3 +109,27 @@ func (c *Controller) ConfirmAccount(emailCode string) error {
 	}
 	return nil
 }
+
+func (c *Controller) UpdatePassword(session *tables.User, currentPassword, newPassword string) error {
+	var user tables.User
+	qErr := c.DB.
+		Where("uuid = ?", session.UUID).
+		First(&user).
+		Error
+	if qErr != nil {
+		if errors.Is(qErr, gorm.ErrRecordNotFound) {
+			return ErrUnauthorized
+		}
+		return qErr
+	}
+	if !user.Authenticate(currentPassword) {
+		return ErrUnauthorized
+	}
+	uErr := c.DB.
+		Where("uuid = ?", user.UUID).
+		Updates(&tables.User{
+			Model:    user.Model,
+			Password: newPassword,
+		}).Error
+	return uErr
+}
