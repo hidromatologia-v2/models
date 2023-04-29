@@ -150,3 +150,18 @@ func (c *Controller) RequestResetPassword(account *tables.User) (string, error) 
 	sErr := c.PasswordCache.Set(resetCode, user, store.WithExpiration(time.Hour))
 	return resetCode, sErr
 }
+
+func (c *Controller) ResetPassword(resetCode string, newPassword string) error {
+	var user tables.User
+	err := c.PasswordCache.Get(resetCode, &user)
+	if err != nil {
+		return err
+	}
+	qErr := c.DB.
+		Where("uuid = ?", user.UUID).
+		Updates(&tables.User{
+			Model:    user.Model,
+			Password: newPassword,
+		}).Error
+	return qErr
+}
