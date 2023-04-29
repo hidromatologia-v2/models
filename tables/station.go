@@ -23,7 +23,8 @@ type (
 		Subdivision *countries.SubdivisionCode `json:"subdivision" gorm:"not null"`
 		Latitude    *float64                   `json:"latitude" gorm:"not null;"`
 		Longitude   *float64                   `json:"longitude" gorm:"not null;"`
-		APIKey      string                     `json:"apiKey" gorm:"not null;"`
+		APIKey      string                     `json:"-" gorm:"not null;"`
+		APIKeyJSON  *string                    `json:"apiKey" gorm:"-"`
 		Sensors     []Sensor                   `json:"sensors" gorm:"constraint:OnDelete:CASCADE;"`
 	}
 	Sensor struct {

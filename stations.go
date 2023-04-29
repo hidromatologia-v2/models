@@ -125,12 +125,26 @@ func (c *Controller) UpdateStation(session *tables.User, station *tables.Station
 	return nil
 }
 
-func (c *Controller) QueryStation(station *tables.Station) (*tables.Station, error) {
+func (c *Controller) QueryStationNoAPIKey(station *tables.Station) (*tables.Station, error) {
 	s := new(tables.Station)
 	qErr := c.DB.
 		Preload("Sensors").
 		Where("uuid = ?", station.UUID).
-		First(&s).Error
+		First(s).Error
+	return s, qErr
+}
+
+func (c *Controller) QueryStationAPIKey(session *tables.User, station *tables.Station) (*tables.Station, error) {
+	s := new(tables.Station)
+	qErr := c.DB.
+		Preload("Sensors").
+		Where("uuid = ?", station.UUID).
+		Where("user_uuid = ?", session.UUID).
+		First(s).Error
+	if qErr != nil && errors.Is(qErr, gorm.ErrRecordNotFound) {
+		return nil, ErrUnauthorized
+	}
+	s.APIKeyJSON = &s.APIKey
 	return s, qErr
 }
 
