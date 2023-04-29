@@ -19,8 +19,8 @@ type (
 		UserUUID    uuid.UUID                  `json:"userUUID" gorm:"uniqueIndex:idx_unique_station;not null;"`
 		Name        *string                    `json:"name" gorm:"uniqueIndex:idx_unique_station;not null;"`
 		Description *string                    `json:"description"`
-		Country     *countries.CountryCode     `json:"-" gorm:"not null;"`
-		Subdivision *countries.SubdivisionCode `json:"-" gorm:"not null"`
+		Country     *countries.CountryCode     `json:"country" gorm:"not null;"`
+		Subdivision *countries.SubdivisionCode `json:"subdivision" gorm:"not null"`
 		Latitude    *float64                   `json:"latitude" gorm:"not null;"`
 		Longitude   *float64                   `json:"longitude" gorm:"not null;"`
 		APIKey      string                     `json:"apiKey" gorm:"not null;"`
