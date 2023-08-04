@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.15 (2023-08-04)
+
+
+### Bug Fixes
+
+* Added support for inserting registries by sensor's name ([#22](https://github.com/hidromatologia-v2/models/issues/22)) ([876754d](https://github.com/hidromatologia-v2/models/commit/876754df1d7b97106ed9771a897a35d906621635))
+
 ### 0.0.14 (2023-04-29)
 
 ### 0.0.13 (2023-04-26)
