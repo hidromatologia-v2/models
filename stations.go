@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/hidromatologia-v2/models/tables"
 	uuid "github.com/satori/go.uuid"
@@ -210,34 +211,112 @@ func (c *Controller) Historical(filter *HistoricalFilter) ([]tables.SensorRegist
 	return results, qErr
 }
 
-func (c *Controller) PushRegistry(session *tables.Station, registries []tables.SensorRegistry) error {
-	sensorsUUIDsMap := map[uuid.UUID]struct{}{}
-	sensorsUUIDs := make([]uuid.UUID, 0, 10)
+func (c *Controller) PushRegistry(session *tables.Station, registries []tables.SensorRegistry) (err error) {
+	var (
+		uuidsMaps       = make(map[uuid.UUID]struct{}, 10)
+		uuids           = make([]uuid.UUID, 0, 10)
+		uuidRegistries  = make([]*tables.SensorRegistry, 0, 10)
+		typesMaps       = make(map[string]struct{}, 10)
+		types           = make([]string, 0, 10)
+		typesRegistries = make([]*tables.SensorRegistry, 0, 10)
+	)
 	for _, registry := range registries {
-		if _, ok := sensorsUUIDsMap[registry.SensorUUID]; ok {
-			continue
+		switch {
+		case registry.SensorUUID != uuid.Nil:
+			if _, ok := uuidsMaps[registry.SensorUUID]; !ok {
+				uuidsMaps[registry.SensorUUID] = struct{}{}
+				uuids = append(uuids, registry.SensorUUID)
+			}
+			uuidRegistries = append(uuidRegistries, &registry)
+		case registry.SensorType != nil && *registry.SensorType != "":
+			if _, ok := typesMaps[*registry.SensorType]; !ok {
+				typesMaps[*registry.SensorType] = struct{}{}
+				types = append(types, *registry.SensorType)
+			}
+			typesRegistries = append(typesRegistries, &registry)
+		default:
+			err = fmt.Errorf("invalid sensor registry")
+			return err
 		}
-		sensorsUUIDsMap[registry.SensorUUID] = struct{}{}
-		sensorsUUIDs = append(sensorsUUIDs, registry.SensorUUID)
 	}
-	var confirmedSensorsUUIDs int64
-	fErr := c.DB.
-		Model(&tables.Sensor{}).
-		Where("station_uuid = ?", session.UUID).
-		Where("uuid IN (?)", sensorsUUIDs).
-		Count(&confirmedSensorsUUIDs).Error
-	if fErr != nil {
-		return fErr
+
+	var (
+		rcCount int
+		rc      = make([]tables.SensorRegistry, 0, len(registries))
+	)
+
+	// By UUID
+	if len(uuidsMaps) > 0 {
+		var (
+			sensorsByUUID    []tables.Sensor
+			sensorsByUUIDMap = make(map[uuid.UUID]struct{}, len(uuidsMaps))
+		)
+		err = c.DB.
+			Model(&tables.Sensor{}).
+			Where("station_uuid = ?", session.UUID).
+			Where(`uuid IN (?)`, uuids).
+			Select("uuid").
+			Find(&sensorsByUUID).Error
+		if err != nil {
+			err = fmt.Errorf("sensors found by uuid")
+			return err
+		}
+		for _, sensor := range sensorsByUUID {
+			sensorsByUUIDMap[sensor.UUID] = struct{}{}
+		}
+		for _, registry := range uuidRegistries {
+			_, ok := sensorsByUUIDMap[registry.SensorUUID]
+			if !ok {
+				continue
+			}
+			rcCount++
+			rc = append(rc, tables.SensorRegistry{
+				SensorUUID: registry.SensorUUID,
+				Value:      registry.Value,
+			})
+		}
 	}
-	if confirmedSensorsUUIDs != int64(len(sensorsUUIDs)) {
-		return ErrUnauthorized
+
+	// By Type
+	if len(typesMaps) > 0 {
+		var (
+			sensorsByType    []tables.Sensor
+			sensorsByTypeMap = make(map[string]uuid.UUID, len(uuidsMaps))
+		)
+		err = c.DB.
+			Model(&tables.Sensor{}).
+			Where("station_uuid = ?", session.UUID).
+			Where(`"type" IN (?)`, types).
+			Select("type", "uuid").
+			Find(&sensorsByType).Error
+		if err != nil {
+			err = fmt.Errorf("sensors found by uuid")
+			return err
+		}
+		for _, sensor := range sensorsByType {
+			sensorsByTypeMap[sensor.Type] = sensor.UUID
+		}
+		for _, registry := range typesRegistries {
+			sensorUUID, ok := sensorsByTypeMap[*registry.SensorType]
+			if !ok {
+				continue
+			}
+			rcCount++
+			rc = append(rc, tables.SensorRegistry{
+				SensorUUID: sensorUUID,
+				Value:      registry.Value,
+			})
+		}
 	}
-	rc := make([]tables.SensorRegistry, 0, len(registries))
-	for _, registry := range registries {
-		rc = append(rc, tables.SensorRegistry{
-			SensorUUID: registry.SensorUUID,
-			Value:      registry.Value,
-		})
+
+	if rcCount != len(registries) {
+		err = ErrUnauthorized
+		return err
 	}
-	return c.DB.Create(rc).Error
+
+	// Create registries
+	if len(rc) > 0 {
+		err = c.DB.Create(rc).Error
+	}
+	return err
 }
