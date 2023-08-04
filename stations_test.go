@@ -557,6 +557,37 @@ func testPushRegistry(t *testing.T, c *Controller) {
 		assert.NotNil(tt, registries)
 		assert.Len(tt, registries, 1000)
 	})
+	t.Run("Valid (by Type)", func(tt *testing.T) {
+		u := tables.RandomUser()
+		assert.Nil(tt, c.DB.Create(u).Error)
+		s := tables.RandomStation(u)
+		assert.Nil(tt, c.DB.Create(s).Error)
+		sensorUUID := s.Sensors[0].UUID
+		sensorType := s.Sensors[0].Type
+		// Check
+		// -- Time
+		from := time.Now()
+		{
+			registries := make([]tables.SensorRegistry, 0, 1000)
+			for i := 0; i < 1000; i++ {
+				registries = append(registries, tables.SensorRegistry{
+					SensorType: &sensorType,
+					Value:      random.Float(10000.0),
+				})
+			}
+			assert.Nil(tt, c.PushRegistry(s, registries))
+		}
+		to := time.Now()
+		// Query
+		registries, hErr := c.Historical(&HistoricalFilter{
+			SensorUUID: sensorUUID,
+			From:       &from,
+			To:         &to,
+		})
+		assert.Nil(tt, hErr)
+		assert.NotNil(tt, registries)
+		assert.Len(tt, registries, 1000)
+	})
 	t.Run("Unauthorized", func(tt *testing.T) {
 		u := tables.RandomUser()
 		assert.Nil(tt, c.DB.Create(u).Error)

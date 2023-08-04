@@ -38,6 +38,7 @@ type (
 		Model
 		Sensor     Sensor    `json:"sensor" gorm:"foreignKey:SensorUUID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 		SensorUUID uuid.UUID `json:"sensorUUID" gorm:"not null;"`
+		SensorType *string   `json:"sensorType,omitempty" gorm:"-"`
 		Value      float64   `json:"value"`
 	}
 )
