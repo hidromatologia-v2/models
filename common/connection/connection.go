@@ -39,14 +39,14 @@ const (
 )
 
 func DefaultConsumer(t *testing.T) *memphis.Consumer {
-	return NewConsumer(t, testingStation)
+	return NewConsumer(t, testingStation, random.String())
 }
 
 func DefaultProducer(t *testing.T) *memphis.Producer {
-	return NewProducer(t, testingStation)
+	return NewProducer(t, testingStation, random.String())
 }
 
-func NewConsumer(t *testing.T, station string) *memphis.Consumer {
+func NewConsumer(t *testing.T, station, name string) *memphis.Consumer {
 	conn, cErr := memphis.Connect(
 		"127.0.0.1",
 		"root",
@@ -54,13 +54,13 @@ func NewConsumer(t *testing.T, station string) *memphis.Consumer {
 		// memphis.ConnectionToken("memphis"),
 	)
 	assert.Nil(t, cErr)
-	consumerName := fmt.Sprintf("%s-%s", station, uuid.NewV4().String())
-	c, err := conn.CreateConsumer(consumerName, random.String())
+	name = fmt.Sprintf("%s-%s", name, uuid.NewV4().String())
+	c, err := conn.CreateConsumer(station, name)
 	assert.Nil(t, err)
 	return c
 }
 
-func NewProducer(t *testing.T, station string) *memphis.Producer {
+func NewProducer(t *testing.T, station, name string) *memphis.Producer {
 	conn, cErr := memphis.Connect(
 		"127.0.0.1",
 		"root",
@@ -68,8 +68,8 @@ func NewProducer(t *testing.T, station string) *memphis.Producer {
 		// memphis.ConnectionToken("memphis"),
 	)
 	assert.Nil(t, cErr)
-	producerName := fmt.Sprintf("%s-%s", station, uuid.NewV4().String())
-	prod, err := conn.CreateProducer(producerName, random.String())
+	name = fmt.Sprintf("%s-%s", name, uuid.NewV4().String())
+	prod, err := conn.CreateProducer(station, name)
 	assert.Nil(t, err)
 	return prod
 }
