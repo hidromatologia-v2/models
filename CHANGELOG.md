@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.17 (2023-08-26)
+
+
+### Bug Fixes
+
+* added unique uuid to consumer and producers ([#23](https://github.com/hidromatologia-v2/models/issues/23)) ([dad04ec](https://github.com/hidromatologia-v2/models/commit/dad04ec91492e5e95c1e5847f9333da9f058e511))
+
+### 0.0.16 (2023-08-26)
+
 ### 0.0.15 (2023-08-04)
 
 
