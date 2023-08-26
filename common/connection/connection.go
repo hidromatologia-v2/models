@@ -1,6 +1,7 @@
 package connection
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hidromatologia-v2/models"
@@ -9,6 +10,7 @@ import (
 	"github.com/hidromatologia-v2/models/common/random"
 	"github.com/memphisdev/memphis.go"
 	redis_v9 "github.com/redis/go-redis/v9"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/wneessen/go-mail"
 )
@@ -52,7 +54,8 @@ func NewConsumer(t *testing.T, station string) *memphis.Consumer {
 		// memphis.ConnectionToken("memphis"),
 	)
 	assert.Nil(t, cErr)
-	c, err := conn.CreateConsumer(station, random.String())
+	consumerName := fmt.Sprintf("%s-%s", station, uuid.NewV4().String())
+	c, err := conn.CreateConsumer(consumerName, random.String())
 	assert.Nil(t, err)
 	return c
 }
@@ -65,7 +68,8 @@ func NewProducer(t *testing.T, station string) *memphis.Producer {
 		// memphis.ConnectionToken("memphis"),
 	)
 	assert.Nil(t, cErr)
-	prod, err := conn.CreateProducer(station, random.String())
+	producerName := fmt.Sprintf("%s-%s", station, uuid.NewV4().String())
+	prod, err := conn.CreateProducer(producerName, random.String())
 	assert.Nil(t, err)
 	return prod
 }
