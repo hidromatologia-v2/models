@@ -1,67 +1,99 @@
-# Contributing
+- # Contributing
 
-When contributing always follow this pipeline.
+  When contributing always follow this pipeline.
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    
-    [*] --> Issue
-    Issue --> Code
-    Code --> PR
-    PR --> Feedback
-    Feedback --> Feedback
-    Feedback --> Deny
-    Deny --> [*]
-    Feedback --> Approval
-    Approval --> Merge
-    Merge --> Release
-    Release --> [*]
-```
+  ```mermaid
+  stateDiagram-v2
+      direction LR
+      
+      Branch: Branch or Fork
+      PR: PR to dev
+      
+      [*] --> Issue
+      Issue --> Branch
+      Branch --> Code
+      Code --> PR
+      PR --> Feedback
+      Feedback --> Feedback
+      Feedback --> Deny
+      Deny --> [*]
+      Feedback --> Approval
+      Approval --> Merge
+      Merge --> Release
+      Release --> [*]
+  ```
 
-## Commits
+  ## Branching
 
-Commits messages should always be descriptive. Meaning technical descriptions without personal believes or feelings. Commits should always include any of these prefixes:
+  ```mermaid
+  gitGraph
+  	commit
+  	commit
+  	branch dev
+  	checkout dev
+  	commit
+  	commit
+  	branch your_feature
+  	commit
+  	commit
+  	commit
+  	checkout dev
+  	merge your_feature type: REVERSE
+  	checkout your_feature
+  	commit
+  	commit
+  	checkout dev
+  	merge your_feature tag: "v0.5.1"
+  	checkout main
+  	merge dev
+  	commit
+  	
+  	
+  ```
 
-| Prefix               | Use case                                                     |
-| -------------------- | ------------------------------------------------------------ |
-| `docs:`              | The commit includes documentation update.                    |
-| `feat:`              | The commit includes new features to the project.             |
-| `fix:`               | The commit includes fixes for existing bugs.                 |
-| `[skip ci] PREFIX:`  | Reserved for CI/CD pipelines. Should never be used by a human. |
+  ## Commits
 
-Commits should only contain changes related to the prefix used, for example: Never commit `feat` files with `docs` files.
+  Commits messages should always be descriptive. Meaning technical descriptions without personal believes or feelings. Commits should always include any of these prefixes:
 
-Commit examples:
+  | Prefix              | Use case                                                     |
+  | ------------------- | ------------------------------------------------------------ |
+  | `docs:`             | The commit includes documentation update.                    |
+  | `feat:`             | The commit includes new features to the project.             |
+  | `fix:`              | The commit includes fixes for existing bugs.                 |
+  | `[skip ci] PREFIX:` | Reserved for CI/CD pipelines. Should never be used by a human. |
 
-```
-fix: fixed login UI by adding username and password inputs
-```
+  Commits should only contain changes related to the prefix used, for example: Never commit `feat` files with `docs` files.
 
-```
-docs: Documentation for deploying the SQL database
-```
+  Commit examples:
 
-A recommendation is to search for the already existing commits in a repository.
+  ```
+  fix: fixed login UI by adding username and password inputs
+  ```
 
-## Issues
+  ```
+  docs: Documentation for deploying the SQL database
+  ```
 
-For issues names follow the same instructions of the [Commits](#Commits) section.
+  A recommendation is to search for the already existing commits in a repository.
 
-Describing issues should follow the issue template for each repository
+  ## Issues
 
-## Pull Requests
+  For issues names follow the same instructions of the [Commits](#Commits) section.
 
-For PR names follow the same instructions of the [Commits](#Commits) section.
+  Describing issues should follow the issue template for each repository
 
-- PR should always be created with existing Opened issues.
-- PR description should point all the changes made by the devs.
+  ## Pull Requests
 
-## Code
+  For PR names follow the same instructions of the [Commits](#Commits) section.
 
-Code should always follow this rules:
+  - PR should always be created with existing Opened issues.
+  - PR description should point all the changes made by the devs.
 
-- Code should always be descriptive
-- No cryptic variables names.
-- Always use descriptive technical names.
-- Always comment complex code.
+  PR will be always merged using `squash`.
+
+  - Make sure the description of the `Merge` contains all the commits made.
+  - Remove any `[ci skip]` from the `Merge` description.
+
+  ## REST APIs
+
+  While developing REST API make sure you always create a `docs/spec.openapi.yaml` document in the repository assigned. Follow this link for more documentation about the [spec](https://swagger.io/specification/).
