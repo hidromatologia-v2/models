@@ -1,6 +1,7 @@
 package connection
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/hidromatologia-v2/models"
@@ -9,6 +10,7 @@ import (
 	"github.com/hidromatologia-v2/models/common/random"
 	"github.com/memphisdev/memphis.go"
 	redis_v9 "github.com/redis/go-redis/v9"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/wneessen/go-mail"
 )
@@ -37,14 +39,14 @@ const (
 )
 
 func DefaultConsumer(t *testing.T) *memphis.Consumer {
-	return NewConsumer(t, testingStation)
+	return NewConsumer(t, testingStation, random.String()[:64])
 }
 
 func DefaultProducer(t *testing.T) *memphis.Producer {
-	return NewProducer(t, testingStation)
+	return NewProducer(t, testingStation, random.String()[:64])
 }
 
-func NewConsumer(t *testing.T, station string) *memphis.Consumer {
+func NewConsumer(t *testing.T, station, name string) *memphis.Consumer {
 	conn, cErr := memphis.Connect(
 		"127.0.0.1",
 		"root",
@@ -52,12 +54,13 @@ func NewConsumer(t *testing.T, station string) *memphis.Consumer {
 		// memphis.ConnectionToken("memphis"),
 	)
 	assert.Nil(t, cErr)
-	c, err := conn.CreateConsumer(station, random.String())
+	name = fmt.Sprintf("%s-%s", name, uuid.NewV4().String())
+	c, err := conn.CreateConsumer(station, name)
 	assert.Nil(t, err)
 	return c
 }
 
-func NewProducer(t *testing.T, station string) *memphis.Producer {
+func NewProducer(t *testing.T, station, name string) *memphis.Producer {
 	conn, cErr := memphis.Connect(
 		"127.0.0.1",
 		"root",
@@ -65,7 +68,8 @@ func NewProducer(t *testing.T, station string) *memphis.Producer {
 		// memphis.ConnectionToken("memphis"),
 	)
 	assert.Nil(t, cErr)
-	prod, err := conn.CreateProducer(station, random.String())
+	name = fmt.Sprintf("%s-%s", name, uuid.NewV4().String())
+	prod, err := conn.CreateProducer(station, name)
 	assert.Nil(t, err)
 	return prod
 }
