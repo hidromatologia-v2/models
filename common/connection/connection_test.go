@@ -26,13 +26,13 @@ func TestDefaultProducer(t *testing.T) {
 }
 
 func TestNewConsumer(t *testing.T) {
-	c := NewConsumer(t, random.String(), random.String())
+	c := NewConsumer(t, random.String(), random.String()[:64])
 	assert.NotNil(t, c)
 	defer c.Destroy()
 }
 
 func TestNewProducer(t *testing.T) {
-	c := NewProducer(t, random.String(), random.String())
+	c := NewProducer(t, random.String(), random.String()[:64])
 	assert.NotNil(t, c)
 	defer c.Destroy()
 }

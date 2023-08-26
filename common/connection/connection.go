@@ -39,11 +39,11 @@ const (
 )
 
 func DefaultConsumer(t *testing.T) *memphis.Consumer {
-	return NewConsumer(t, testingStation, random.String())
+	return NewConsumer(t, testingStation, random.String()[:64])
 }
 
 func DefaultProducer(t *testing.T) *memphis.Producer {
-	return NewProducer(t, testingStation, random.String())
+	return NewProducer(t, testingStation, random.String()[:64])
 }
 
 func NewConsumer(t *testing.T, station, name string) *memphis.Consumer {
